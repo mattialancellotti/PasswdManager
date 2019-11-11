@@ -11,9 +11,9 @@
 #define VERSION 2.5
 #define MAJOR_RELEASE_DATE "2019-11-04"
 #define MINOR_RELEASE_DATE  "2019-11-09"
-//#define FILE_NAME ".passwds"
 #define DEFAULT_PASSWD_SIZE 8
 
+#define JSON_SIZE_TIME 5
 typedef struct {
 	char * restrict passwd;
 	
@@ -37,28 +37,27 @@ typedef struct JSONObject JSONObject;
 typedef struct JSONArray JSONArray;
 
 struct JSONObject {
-	JSON *json_object;
+	JSON *json_arr;
+	size_t size, current_index;
 };
 
 struct JSON {
 	char *json_name;
-	union JSONValue {
-		JSONObject *json_obj;
-		JSONArray *json_arr;
-		char *json_str;
-		float *json_float; 
-		long long *json_int;
-		int *json_bool;
-	} JSONValue;
+	void *json_value;
 };
 
 struct JSONArray {
-	JSONObject *json_array;
-	size_t size;
+	JSONObject *json_obj_arr;
+	size_t size, current_index;
 };
 
 char *create_passwd(const size_t, const int);
 void check_passwd(passwd_t ** const, const size_t);
 void print(const passwd_t * const);
 void save(FILE *, passwd_mod_t ** const);
+
+JSON *json_put(char *, void *);
+JSONObject *json_object_add(JSON *, JSONObject *);
+JSONArray *json_array_add(JSONObject *, JSONArray *);
+void json_str_parser(JSONObject *);
 #endif
