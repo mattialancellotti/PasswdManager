@@ -14,4 +14,7 @@ Simple _password generator_ created to practice.
 >	-v, -version: to print the current version of the program
 
 Compilation:
-> gcc -Wall -Werror -Wextra -Wpedantic -ggdb main.c main.h utils.c utils.h mem.h args.h
+> make
+
+To delete objects:
+> make clean

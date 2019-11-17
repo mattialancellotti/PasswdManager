@@ -1,27 +1,34 @@
-#include<string.h>
 #include<unistd.h>
 #include<time.h>
 
 #include "utils.h"
-#include "args.c"
+#include "json.h"
+#include "args.h"
 #include "mem.h"
 
-
 int main(const int argc, const char **argv) {
-	int age = 11;
+	float num = 143.5;
+	int bool = 1;
+	JSONArray *arr_json = NULL;
+	JSONObject *first_obj = NULL, *second_obj = NULL, *supreme_obj = NULL;
+	JSON *json = NULL;
 
-	JSON *json = json_put("Name", "Mattia");
-	JSONObject *json_obj = NULL;
-	json_obj = json_object_add(json, json_obj);
-	json = json_put("Surname", "Lancellotti");
-	json_obj = json_object_add(json, json_obj);
-	void *ptr_v = malloc(sizeof(int));
-	ptr_v = &age;
-	json = json_put("Age", ptr_v);
-	json_obj = json_object_add(json, json_obj);
+	json = json_put("Key", &num, NUMBER);
+	first_obj = json_object_add(json, first_obj);
+	json = json_put("key2", &bool, BOOL);
+	first_obj = json_object_add(json, first_obj);
+	json = json_put("Obj", first_obj, JSON_OBJ);
+	second_obj = json_object_add(json, second_obj);
+	arr_json = json_array_add(first_obj, arr_json);
+	arr_json = json_array_add(second_obj, arr_json);
+	json = json_put("Arr", arr_json, JSON_ARR);
+	supreme_obj = json_object_add(json, supreme_obj);
+	json = json_put("lastObj", NULL, J_NULL);
+	supreme_obj = json_object_add(json, supreme_obj);
 
-	json_str_parser(json_obj);
+	printf("=> %s\n\n", json_obj_parser(supreme_obj));
 	return 0;
+
 	passwd_mod_t *passwd_info = handle_args(argv, argc);
 
 	if (passwd_info->args_error_flags) {
@@ -135,52 +142,3 @@ void print(const passwd_t * const passwd_info) {
 	printf("\n%s===NUMBER OF EACH TYPE===%s\n", RED, RESET);
 	printf("\t| Number of upper case chars: %d\n\t| Number of lower case chars: %d\n\t| Number of digits: %d\n\t| Number of signs: %d\n", passwd_info->number_u_char, passwd_info->number_l_char, passwd_info->number_digit, passwd_info->number_sign);
 }
-
-JSON *json_put(char *key, void *value) {
-	JSON *new_json_object = malloc(sizeof(JSON));
-	new_json_object->json_name = key;
-	new_json_object->json_value = value;
-	return new_json_object;
-}
-
-JSONObject *json_object_add(JSON *json, JSONObject *json_object) {
-	if (!json_object) {
-		json_object = malloc(sizeof(JSONObject));
-		json_object->size = 2;
-		json_object->current_index = 0;
-		json_object->json_arr = malloc(sizeof(JSON)*json_object->size);
-	}
-
-	if (json_object->current_index == json_object->size) {
-		json_object->size++;
-		json_object = realloc(json_object, json_object->size);
-	}
-	json_object->json_arr[json_object->current_index++] = *json;
-	return json_object;
-}
-
-JSONArray *json_array_add(JSONObject *json_object, JSONArray *json_array) {
-	if (!json_array) {
-		json_array = malloc(sizeof(JSONArray));
-		json_array->size = 2;
-		json_array->current_index = 0;
-		json_array->json_obj_arr = malloc(sizeof(JSONObject)*json_array->size);
-	}
-
-	if (json_array->current_index == json_array->size) {
-		json_array->size++;
-		json_array = realloc(json_array, json_array->size);
-	}
-	json_array->json_obj_arr[json_array->current_index++] = *json_object;
-	return json_array;
-}
-
-void json_str_parser(JSONObject *json_object) {
-	for (size_t i=0; i<json_object->size; i++)
-		printf("%s-%p\n", json_object->json_arr[i].json_name, json_object->json_arr[i].json_value);
-}
-/*
-void save(FILE *file, passwd_mod_t ** const passwd_info) {
-	fprintf(file, "%s\n", (*passwd_info)->passwd_list[0]->passwd);
-}
-*/

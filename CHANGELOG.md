@@ -9,5 +9,13 @@ CHANGELOG
 	- Prepeared some coming soon features
 
 + **VERSION 2.5 [2019 - 11 - 09]**
-	- Program splitted into multiple f iles
+	- Program splitted into multiple files
 	- All memory leaks solved
+
++ **VERISON 2.7 [2019 - 11 - 17]**
+	- Coded half of the JSON parser (missing free functions)
+	- Program splitted
+
++ **VERSION 2.8 [2019 - 11 - 17]**
+	- MAKEFILES
+	- Updated README

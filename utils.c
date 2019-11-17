@@ -55,3 +55,20 @@ char **split(const char *str, const char c) {
 
 	return realloc(arr_not_admitted, arr_i);
 }
+
+size_t count_digits(float num) {
+	float second_part = fmod(num, 1);
+	size_t counter = 0, dec_digits=3;
+
+	//counting first part of digits
+	counter = log10((int)num)+1;
+	while(dec_digits--)
+		second_part*=10;
+
+	//approximation
+	if (((int)fmod(second_part, 1)*10) > 4)
+		second_part+=1;
+	counter += log10((int)second_part)+1;
+	
+	return counter;
+}
