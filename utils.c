@@ -57,18 +57,23 @@ char **split(const char *str, const char c) {
 }
 
 size_t count_digits(float num) {
-	float second_part = fmod(num, 1);
+	float second_part = num - (int)num;
 	size_t counter = 0, dec_digits=3;
 
+  if (!num)
+    return 1;
 	//counting first part of digits
 	counter = log10((int)num)+1;
+  if (!second_part)
+    return counter;
+
 	while(dec_digits--)
 		second_part*=10;
 
 	//approximation
-	if (((int)fmod(second_part, 1)*10) > 4)
+	if (((second_part - (int)second_part)*10) > 4)
 		second_part+=1;
-	counter += log10((int)second_part)+1;
+	counter += log10((int)second_part);
 	
 	return counter;
 }

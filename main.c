@@ -7,26 +7,49 @@
 #include "mem.h"
 
 int main(const int argc, const char **argv) {
-	float num = 143.5;
-	int bool = 1;
-	JSONArray *arr_json = NULL;
-	JSONObject *first_obj = NULL, *second_obj = NULL, *supreme_obj = NULL;
+	float bool = 0;
+	float num = 1;
 	JSON *json = NULL;
+	JSONObject *obj = NULL, *veicoli = NULL, *veicoli2 = NULL, *girl = NULL;
+	JSONArray *arr = NULL;
+	extern JSONObject *first_obj;
 
-	json = json_put("Key", &num, NUMBER);
-	first_obj = json_object_add(json, first_obj);
-	json = json_put("key2", &bool, BOOL);
-	first_obj = json_object_add(json, first_obj);
-	json = json_put("Obj", first_obj, JSON_OBJ);
-	second_obj = json_object_add(json, second_obj);
-	arr_json = json_array_add(first_obj, arr_json);
-	arr_json = json_array_add(second_obj, arr_json);
-	json = json_put("Arr", arr_json, JSON_ARR);
-	supreme_obj = json_object_add(json, supreme_obj);
-	json = json_put("lastObj", NULL, J_NULL);
-	supreme_obj = json_object_add(json, supreme_obj);
+	json = json_put("Nome", "Andrea", STRING);
+	obj = json_object_add(json, obj);
+	json = json_put("Cognome", "Santin", STRING);
+	obj = json_object_add(json, obj);
+	json = json_put("Eta", &num, NUMBER);
+	obj = json_object_add(json, obj);
 
-	printf("=> %s\n\n", json_obj_parser(supreme_obj));
+	json = json_put("Colore", "Bianca", STRING);
+	veicoli = json_object_add(json, veicoli);
+	json = json_put("Targa", "GH6745G", STRING);
+	veicoli = json_object_add(json, veicoli);
+	json = json_put("Colore", "Grigio", STRING);
+	veicoli2 = json_object_add(json, veicoli2);
+	json = json_put("Targa", "GH6745G", STRING);
+	veicoli2 = json_object_add(json, veicoli2);
+	json = json_put("Usata", &bool, BOOL);
+	veicoli2 = json_object_add(json, veicoli2);
+	arr = json_array_add(veicoli, arr);
+	arr = json_array_add(veicoli2, arr);
+	json = json_put("Veicoli", arr, JSON_ARR);
+	obj = json_object_add(json, obj);
+	
+	json = json_put("Nome", "Esiste?", STRING);
+	girl = json_object_add(json, girl);
+	json = json_put("Cognome", "Non ne sono sicuro", STRING);
+	girl = json_object_add(json, girl);
+	json = json_put("Ragazza", girl, JSON_OBJ);
+	obj = json_object_add(json, obj);
+
+	char *tmp = json_obj_parser(first_obj);
+	printf("=> %s\n\n", tmp);
+	free(tmp);
+	json_object_free(first_obj);
+	free(first_obj);
+	first_obj = NULL;
+
 	return 0;
 
 	passwd_mod_t *passwd_info = handle_args(argv, argc);
@@ -72,9 +95,9 @@ char *create_passwd(const size_t length, const int flags) {
 		i++;
 	}
 
-	passwd[i] = '\0';
+  passwd[i] = '\0';
 
-   return passwd;
+  return passwd;
 }
 
 void check_passwd(passwd_t ** const passwd_created, const size_t length) {

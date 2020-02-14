@@ -8,7 +8,7 @@
 #define YELLOW "\x1b[33m"
 #define RESET "\x1b[0m"
 
-#define VERSION 2.8
+#define VERSION 2.9
 #define MAJOR_RELEASE_DATE "2019-11-04"
 #define MINOR_RELEASE_DATE  "2019-11-18"
 #define DEFAULT_PASSWD_SIZE 8
@@ -35,4 +35,5 @@ typedef struct {
 char *create_passwd(const size_t, const int);
 void check_passwd(passwd_t ** const, const size_t);
 void print(const passwd_t * const);
+
 #endif

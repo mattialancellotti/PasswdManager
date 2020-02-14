@@ -13,7 +13,7 @@ Simple _password generator_ created to practice.
 >	-h, -help: to show this message
 >	-v, -version: to print the current version of the program
 
-Compilation:
+Compile:
 > make
 
 To delete objects:
