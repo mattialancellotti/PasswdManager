@@ -22,8 +22,6 @@ void help(void) {
 	printf("\t-l, -length: to specify the length of the password.\n");
 	printf("\t-n, -not-admitted: to specify which type of character is not allowed [digit - u_char - l_char - sign] (usage: -not-admitted digit,u_char)\n");
 	printf("\t-t, -times: to specify how many password you need\n");
-	printf("\t-s, -save: to save all the passwords generated in a file\n");
-	printf("\t-u, -use: to specify which password you want to use [1 - 2 - 3...]  (usage: -use 1,2,3)\n");
 	printf("\t-p, -print: to print the stats\n");
 	printf("\t-h, -help: to show this message\n");
 	printf("\t-v, -version: to print the current version of the program\n");

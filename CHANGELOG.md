@@ -12,15 +12,10 @@ CHANGELOG
 	- Program splitted into multiple files
 	- All memory leaks solved
 
-+ **VERSION 2.7 [2019 - 11 - 17]**
-	- Coded half of the JSON parser (missing free functions)
-	- Program splitted
-
 + **VERSION 2.8 [2019 - 11 - 17]**
 	- MAKEFILES
 	- Updated README
 
 + **VERSION 2.9 [2019 - 11 - 24]**
-  - Improved memory management in the json parser
   - Bug fixing
 

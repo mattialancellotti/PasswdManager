@@ -2,56 +2,10 @@
 #include<time.h>
 
 #include "utils.h"
-#include "json.h"
 #include "args.h"
 #include "mem.h"
 
 int main(const int argc, const char **argv) {
-	float bool = 0;
-	float num = 1;
-	JSON *json = NULL;
-	JSONObject *obj = NULL, *veicoli = NULL, *veicoli2 = NULL, *girl = NULL;
-	JSONArray *arr = NULL;
-	extern JSONObject *first_obj;
-
-	json = json_put("Nome", "Andrea", STRING);
-	obj = json_object_add(json, obj);
-	json = json_put("Cognome", "Santin", STRING);
-	obj = json_object_add(json, obj);
-	json = json_put("Eta", &num, NUMBER);
-	obj = json_object_add(json, obj);
-
-	json = json_put("Colore", "Bianca", STRING);
-	veicoli = json_object_add(json, veicoli);
-	json = json_put("Targa", "GH6745G", STRING);
-	veicoli = json_object_add(json, veicoli);
-	json = json_put("Colore", "Grigio", STRING);
-	veicoli2 = json_object_add(json, veicoli2);
-	json = json_put("Targa", "GH6745G", STRING);
-	veicoli2 = json_object_add(json, veicoli2);
-	json = json_put("Usata", &bool, BOOL);
-	veicoli2 = json_object_add(json, veicoli2);
-	arr = json_array_add(veicoli, arr);
-	arr = json_array_add(veicoli2, arr);
-	json = json_put("Veicoli", arr, JSON_ARR);
-	obj = json_object_add(json, obj);
-	
-	json = json_put("Nome", "Esiste?", STRING);
-	girl = json_object_add(json, girl);
-	json = json_put("Cognome", "Non ne sono sicuro", STRING);
-	girl = json_object_add(json, girl);
-	json = json_put("Ragazza", girl, JSON_OBJ);
-	obj = json_object_add(json, obj);
-
-	char *tmp = json_obj_parser(first_obj);
-	printf("=> %s\n\n", tmp);
-	free(tmp);
-	json_object_free(first_obj);
-	free(first_obj);
-	first_obj = NULL;
-
-	return 0;
-
 	passwd_mod_t *passwd_info = handle_args(argv, argc);
 
 	if (passwd_info->args_error_flags) {
