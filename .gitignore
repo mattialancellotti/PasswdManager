@@ -1,0 +1,4 @@
+*.yaml
+run.c
+a.out
+*.o
