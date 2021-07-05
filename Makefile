@@ -1,4 +1,4 @@
-CC = gcc
+CC = clang
 CFLAGS = -Wpedantic -Wextra -Werror
 LDLIBS = -lm -lyaml
 
@@ -11,7 +11,7 @@ ifdef LIBSODIUM
 endif
 
 ifdef DEBUG
-  CFLAGS += -ggdb -D__debug__
+  CFLAGS += -ggdb -D__debug__ -fsanitize=address,undefined
 endif
 
 $(BINARY): $(OBJS)
