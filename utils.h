@@ -1,5 +1,5 @@
 #ifndef UTILS_H
-#define UITLS_H
+#define UTILS_H
 
 #include <ctype.h>
 #include <string.h>
@@ -7,12 +7,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define MAX_NOT_ADMITTED_STR_NUM 4
-
-unsigned check_num(const char *);
-char **split(const char *, const char);
 size_t search(const char *, const size_t, const char);
-void help(void);
+
+/* 
+ * Just prints out the help message.
+ * It accepts an unsigned decimal that acts as a flag, if the second bit is 1
+ * it will also prints the version of the program.
+ */
+void help();
 size_t count_digits(float);
 
 #endif
