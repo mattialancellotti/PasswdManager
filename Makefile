@@ -1,9 +1,18 @@
-CC = clang
-CFLAGS = -Wpedantic -Wextra -Werror
-LDLIBS = -lm -lyaml
-
+INCLUDE = include
 BINARY = ezPass
-OBJS = yaml_parser.o storage.o args.o mem.o utils.o main.o tree.o
+OBJSDIR = bin
+SRCDIR = src
+
+VPATH = src:include
+SRCS := $(wildcard src/*)
+OBJS := $(addprefix \
+       $(OBJSDIR)/, yaml_parser.o storage.o args.o mem.o utils.o main.o tree.o)
+DEPS := $(patsubst %.c, %.d, $(SRCS))
+
+CC = clang
+RM = rm -rf
+CFLAGS = -Wpedantic -Wextra -Werror -I$(INCLUDE)
+LDLIBS = -lm -lyaml
 
 ifdef LIBSODIUM
   CFLAGS += -D__libsodium__
@@ -14,27 +23,19 @@ ifdef DEBUG
   CFLAGS += -ggdb -D__debug__ -fsanitize=address,undefined
 endif
 
-$(BINARY): $(OBJS)
+
+$(BINARY): | $(OBJSDIR) $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(BINARY) $(LDLIBS)
 
-tree.o : tree.c tree.h
-	$(CC) $(CFLAGS) -c tree.c 
-yaml_parser.o : yaml_parser.c yaml_parser.h tree.h
-	$(CC) $(CFLAGS) -c yaml_parser.c 
-storage.o : storage.c storage.h
-	$(CC) $(CFLAGS) -c storage.c
-args.o : args.c args.h main.h
-	$(CC) $(CFLAGS) -c args.c
-mem.o : mem.c mem.h main.h
-	$(CC) $(CFLAGS) -c mem.c
-utils.o : utils.c utils.h
-	$(CC) $(CFLAGS) -c utils.c
-main.o : main.c main.h utils.h
-	$(CC) $(CFLAGS) -c main.c
+$(OBJSDIR):
+	@mkdir -p $(OBJSDIR)
 
-.PHONY: clean_objects clean
-clean_objects:
-	$(RM) $(OBJS)
+$(SRCDIR)/%.d: $(SRCDIR)/%.c
+	$(CC) $(CFLAGS) -MM -MT '$(patsubst %.c, $(OBJSDIR)/%.o, $(notdir $<))' $< -MF $@
 
-clean: clean_objects
-	$(RM) $(BINARY)
+$(OBJSDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.d $(INCLUDE)/%.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+.PHONY: clean
+clean:
+	$(RM) $(BINARY) $(OBJSDIR)
