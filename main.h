@@ -46,7 +46,7 @@ typedef struct {
 /* This struct represent settings.yml */
 typedef struct {
   char *passwds_file;
-  size_t max_l, min_l;
+  unsigned max_l, min_l;
   unsigned accept_same_password,
            colors, profiles;
 } config_t;
