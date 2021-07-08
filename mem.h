@@ -3,10 +3,9 @@
 
 #include "main.h"
 
-void mem_dealloc_str_matrix(char **, int);
-void mem_dealloc_passwd_mod_t(passwd_mod_t **); // safe free function for the passwd_mod_t struct
-void mem_dealloc_passwd_t(passwd_t **, size_t);
-passwd_mod_t *mem_alloc_passwd_mod_t(size_t, int, int, int, int);
+void mem_dealloc_passwd_t(passwd_t ** /*passwd_s*/, const size_t /*lenght*/);
+
+/* It safely allocates and initialize a password type */
 passwd_t *mem_alloc_passwd_t(void);
 
 #endif
