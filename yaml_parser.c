@@ -11,12 +11,11 @@
 /*
  * This function parses any kind of yaml file and saves the content in a N-ary
  * tree (that is a tree with n nodes per each (sub)-root).
- * 
+ *
  * In this case the function uses the implementation from glib to parse the
  * yaml file and then returns the root of the tree back to the caller function.
  */
 static TreeNode *process_block(TreeNode* /*parent*/, yaml_parser_t* /*parser*/);
-static config_t *load_settings(config_t* /*settings*/, TreeNode* /*tree*/);
 
 const config_t *parse_settings(const char *file)
 {
@@ -43,31 +42,11 @@ const config_t *parse_settings(const char *file)
 
    /* Parsing infos */
    config_t *settings = malloc(sizeof(config_t));
-   settings = load_settings(settings, tree);
+
+   printf("%d", settings->profiles);
 
    t_tree_destroy(tree);
    report("Tree has been deleted.");
-   return NULL;
-}
-
-/* TODO Might want to use getopt */
-static config_t *load_settings(config_t *settings, TreeNode *tree)
-{
-   if (tree == NULL)
-      return NULL;
-
-   if (!strcmp((char *)tree->data, "settings"))
-      load_settings(settings, tree->child);
-   else if (!strcmp((char *)tree->data, "passwds_file")) {
-      if (tree->next)
-         settings->passwds_file = tree->next->data;
-      else
-         settings->passwds_file = NULL;
-
-      t_jump_next_keyword(tree);
-      load_settings(settings, tree);
-   }
-
    return NULL;
 }
 
