@@ -8,8 +8,8 @@
 #include <fcntl.h>
 #include <pwd.h>
 
-#include <storage.h>
-#include <yaml_parser.h>
+#include <pass/storage.h>
+#include <pass/yaml_parser.h>
 
 static char *map_file(const char* /*f_name*/);
 

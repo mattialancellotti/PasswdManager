@@ -1,7 +1,7 @@
 #include <sodium.h>
 #include <string.h>
 
-#include <mem.h>
+#include <pass/mem.h>
 
 /* Safely deallocates a password */
 void mem_dealloc_passwd_t(passwd_t ** passwd_s, const size_t length)

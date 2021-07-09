@@ -5,8 +5,8 @@
 #include <string.h>
 #include <yaml.h>
 
-#include <yaml_parser.h>
-#include <tree.h>
+#include <pass/yaml_parser.h>
+#include <pass/tree.h>
 
 /*
  * This function parses any kind of yaml file and saves the content in a N-ary
@@ -42,8 +42,6 @@ const config_t *parse_settings(const char *file)
 
    /* Parsing infos */
   // config_t *settings = malloc(sizeof(config_t));
-   
-
 
    t_tree_destroy(tree);
    report("Tree has been deleted.");

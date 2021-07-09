@@ -7,23 +7,6 @@
  *    # Project configuration
  *    - Create a TODO file so that I can plan what it is to be done in order to
  *      get the program always to a usable state.
- *    - New project structure
- *      \+ PasswdManager/
- *        \+ include/
- *           \-- main.h
- *           \-- args.h
- *         \+ src/
- *           \-- main.c
- *           \-- main.h
- *           \-- args.c
- *           ...
- *         \+ bin/
- *           \-- main.o
- *           \-- args.o
- *           ...
- *         \+ doc/
- *           \-- ezPass.1
- *         \-- Makefile
  *    - Configure Makefile:
  *       - install/uninstall rules
  *       - clean/doc rules
@@ -73,10 +56,10 @@
 #  include <assert.h>
 #endif
 
-#include <storage.h>
-#include <utils.h>
-#include <args.h>
-#include <mem.h>
+#include <pass/storage.h>
+#include <pass/utils.h>
+#include <pass/args.h>
+#include <pass/mem.h>
 
 /* Just the main function */
 int main(int argc, char **argv)

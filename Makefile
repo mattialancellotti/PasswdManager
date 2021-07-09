@@ -24,16 +24,18 @@ ifdef DEBUG
 endif
 
 
+# Actually linking everything into a single binary
 $(BINARY): | $(OBJSDIR) $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(BINARY) $(LDLIBS)
 
 $(OBJSDIR):
+	@echo Creating $(abspath $(OBJSDIR)).
 	@mkdir -p $(OBJSDIR)
 
 $(SRCDIR)/%.d: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -MM -MT '$(patsubst %.c, $(OBJSDIR)/%.o, $(notdir $<))' $< -MF $@
 
-$(OBJSDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.d $(INCLUDE)/%.h
+$(OBJSDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.d $(INCLUDE)/pass/%.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 .PHONY: clean

@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include <args.h>
+#include <pass/args.h>
 
 /* 
  * It splits the string passed to check which types of characters are not to be

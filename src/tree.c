@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include <tree.h>
+#include <pass/tree.h>
 
 #define t_init_node(data, var); \
    var = t_new_node(data, NULL, NULL);
