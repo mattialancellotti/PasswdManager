@@ -1,11 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 size_t search(const char *, const size_t, const char);
 

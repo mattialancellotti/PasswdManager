@@ -1,8 +1,6 @@
 #ifndef ARGS_H
 #define ARGS_H
 
-#include <getopt.h>
-
 #include "main.h"
 
 #define PASSWD_MIN_LENGTH 4
