@@ -47,6 +47,7 @@
  */
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
 
 #if defined(__libsodium__)
 #  include <sodium.h>
@@ -144,6 +145,7 @@ int main(int argc, char **argv)
       passwords[i] = create_passwd(config_file.length, config_file.char_not_admitted);
       printf("Password: %s%s%s\n", YELLOW, passwords[i], RESET);
 
+      free(passwords[i]);
       /* Wait unless this is the last password */
       if (config_file.times != i+1)
          /*

@@ -1,5 +1,9 @@
 #include <pass/utils.h>
 
+#include <ctype.h>
+#include <stdio.h>
+#include <math.h>
+
 size_t search(const char * arr, const size_t size, const char c)
 {
    size_t i=0;

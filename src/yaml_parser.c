@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 500
 #if defined(__debug__)
 #  include <assert.h>
 #endif
@@ -7,6 +8,7 @@
 
 #include <pass/yaml_parser.h>
 #include <pass/tree.h>
+#include <yaml/parser.h>
 
 /*
  * This function parses any kind of yaml file and saves the content in a N-ary
@@ -30,6 +32,17 @@ const config_t *parse_settings(const char *file)
 
    report("Initialization successful.");
    report("Attempt at creating the tree.");
+
+   const struct yaml_option (*yaml_settings_options)[] = &(struct yaml_option[]){
+      {"profiles_enabled",   boolean, 'e'},
+      {"accept_same_passwd", boolean, 'a'},
+      {"passwd_min_len", number, 'i'},
+      {"passwd_max_len", number, 'x'},
+      {"passwds_file", string, 'p'},
+      {0,              0,       0 }
+   };
+
+   printf("%s\n", (*yaml_settings_options)[1].yaml_key);
 
    /* Creatin the tree */
    TreeNode *tree = process_block(NULL, &parser);
@@ -66,6 +79,7 @@ static TreeNode *process_block(TreeNode *parent, yaml_parser_t *parser)
       /* Creating the tree by checking which event occurred */
       if (event.type == YAML_SCALAR_EVENT) {
          /* Adding a new child to the current parent */
+         report("YAML_SCALAR_EVENT");
          parent = t_insert_node(parent, 
                strdup((const char *)event.data.scalar.value));
       } else if (parent &&

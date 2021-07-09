@@ -11,7 +11,7 @@
 #include <pass/storage.h>
 #include <pass/yaml_parser.h>
 
-static char *map_file(const char* /*f_name*/);
+static char *open_f(const char* /*f_name*/);
 
 /* TODO Should return a structure config_t */
 config_t *load_config(void)
@@ -36,8 +36,8 @@ config_t *load_config(void)
     *    - Add samples in /usr of configuration so that the program can run
     *      without those settings
     */
-   char local_file[strlen("/.ezPass") + len];
-   char conf_file[strlen("/.config/ezPass/settings.yaml") + len];
+   char local_file[strlen("/.ezPass") + len + 1];
+   char conf_file[strlen("/.config/ezPass/settings.yaml") + len + 1];
    
    char *settings_files[3] = {
       "/etc/ezPass/settings.yaml",
@@ -54,11 +54,11 @@ config_t *load_config(void)
    */
 
    /* Don't need to map the file, libyaml exposes a function to read a file */
-   char *file = map_file(settings_files[0]);
+   char *file = open_f("/etc/ezPass/profiles.yaml");
+   printf("%s", file);
    parse_settings(file);
 
-   /* 
-    * TODO
+   /* TODO
     *    - Should add the load-configs here so that this function can initiate
     *      everything without any kind of problems.
     *    - If configuration files are not found then bad things happen.
@@ -74,7 +74,7 @@ config_t *load_config(void)
  * using stdio functions like fprintf/fopen. This is done by include sys/mman.h
  * and some other headers that make your life easier lie sys/stat.h for file size
  */
-static char *map_file(const char *f_name)
+static char *open_f(const char *f_name)
 {
    /* Defining file infors like its descriptor and all the other information */
    struct stat f_infos;

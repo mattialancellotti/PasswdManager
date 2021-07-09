@@ -1,4 +1,6 @@
+#define _DEFAULT_SOURCE
 #include <string.h>
+#include <getopt.h>
 
 #include <pass/args.h>
 

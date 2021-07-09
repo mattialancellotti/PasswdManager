@@ -133,7 +133,8 @@ void t_print_all(TreeNode *root, int curr_layer, int first_layer, int depth)
        t_print_all(root->next, curr_layer, first_layer, depth);
     } else if (depth == -1 || curr_layer <= curr_layer+depth) {
        if (root->data != NULL)
-          printf("Layer [%d]: %s\n", curr_layer, ((char *)root->data));
+          printf("Layer [%d]: %s (^ %s)\n", curr_layer, ((char *)root->data),
+                (root->parent ? (char *)root->parent->data : "nil"));
        else
           printf("Layer [%d]: nil\n", curr_layer);
 
