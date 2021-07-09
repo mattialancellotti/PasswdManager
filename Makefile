@@ -11,7 +11,7 @@ DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
 RM = rm -rf
-CFLAGS = -Wpedantic -Wextra -Werror -I$(INCLUDE)
+CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
 LDLIBS = -lm -lyaml
 
 ifdef LIBSODIUM
