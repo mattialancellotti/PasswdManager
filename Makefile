@@ -4,9 +4,8 @@ OBJSDIR = bin
 SRCDIR = src
 
 VPATH = src:include
-SRCS := $(wildcard src/*)
 OBJS := $(addprefix \
-       $(OBJSDIR)/, yaml_parser.o storage.o args.o mem.o utils.o main.o tree.o)
+       $(OBJSDIR)/, yaml_parser.o storage.o args.o utils.o main.o tree.o)
 DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
@@ -34,6 +33,7 @@ $(OBJSDIR):
 
 $(SRCDIR)/%.d: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -MM -MT '$(patsubst %.c, $(OBJSDIR)/%.o, $(notdir $<))' $< -MF $@
+
 
 $(OBJSDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.d $(INCLUDE)/pass/%.h
 	$(CC) $(CFLAGS) -o $@ -c $<
