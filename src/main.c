@@ -48,6 +48,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <ctype.h>
+#include <string.h>
 
 #if defined(__libsodium__)
 #  include <sodium.h>
@@ -60,7 +61,10 @@
 #include <pass/storage.h>
 #include <pass/utils.h>
 #include <pass/args.h>
-#include <pass/mem.h>
+
+/* TODO doc */
+static void mem_dealloc_passwd_t(passwd_t** /*passwd_s*/, const size_t /*length*/);
+static passwd_t* mem_alloc_passwd_t(void);
 
 /* Just the main function */
 int main(int argc, char **argv)
@@ -128,7 +132,6 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
 
-
    /* 
     * TODO
     *    Might want to extract this and put it into a function to create a more
@@ -179,6 +182,44 @@ char *create_passwd(const size_t length, const int flags)
   passwd[i] = '\0';
 
   return passwd;
+}
+
+/* Safely deallocates a password */
+static void mem_dealloc_passwd_t(passwd_t ** passwd_s, const size_t length)
+{
+   /* Some controls to avoid segmatation faults */
+   if (*passwd_s) {
+      if ((*passwd_s)->passwd) {
+         /* 
+          * Clears out the password to avoid it being stolen even after the
+          * deallocation.
+          */
+#if defined(__libsodium__)
+         sodium_memzero((*passwd_s)->passwd, length);
+#else
+	 memset((*passwd_s)->passwd, 0, length);
+	 free((*passwd_s)->passwd);
+#endif
+	 (*passwd_s)->passwd = NULL;
+      }
+
+      free(*passwd_s);
+      *passwd_s = NULL;
+   }
+}
+
+static passwd_t *mem_alloc_passwd_t(void)
+{
+   /* Allocates and initialize the struct `passwd_t`, use sizeof(*new) understand */
+#if defined(__libsodium__)
+   passwd_t *new = sodium_malloc(sizeof(passwd_t));
+   sodium_memzero(new, 56);
+#else
+   passwd_t *new = malloc(sizeof(passwd_t));
+   memset(new, 0, 56);
+#endif
+
+   return new;
 }
 
 void check_passwd(passwd_t ** const passwd_created, const size_t length) {
