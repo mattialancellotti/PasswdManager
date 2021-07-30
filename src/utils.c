@@ -22,7 +22,7 @@ void help()
    printf("\t-n, --not-admitted: to specify which type of character is not\n");
    printf("\t                    allowed [digit - u_char - l_char - sign]\n" );
    printf("\t-t, --times       : to specify how many password you need\n"    );
-   printf("\t    --print       : to print the stats\n"  );
+   printf("\t    --stats       : to print the stats\n"  );
    printf("\t    --help        : to show this message\n");
    printf("\t    --version     : to print the current version of the program\n");
 }
