@@ -10,48 +10,45 @@
  */
 static int get_flags(char* /*str*/);
 
+/* options flags */
+static int fh = 0, fp = 0, fv = 0;
+
+/*
+ * Declaring arguments.
+ * Since the help message or the version of the program are not really
+ * password related, they have been split from the main `executing-branch` of
+ * the program. Basically the struct defined below tells the `getopt_long` 
+ * to assign a value to ret[x] instead of evaluating the parameter in
+ * `handle_args`. This allows to write a shorter and easier code.
+ *
+ *    Read `man getopt.3`;
+ */
+/*
+ * TODO:
+ *    - Add a `list-profiles` to list profiles (default action)
+ *    - Add a `del-profile` to delete the chosen profile (Not sure)
+ *    - Add a `profile` to select a profile to generate that password
+ *    - Add a 'config' to load a different config file
+ *    - Add `encryption` to decide which algorithm is to be used (Not sure)
+ *    - Add `temp` to generate a temporary password for One Time Use
+ *      (means that I need to implement On Time Passwords)
+ */
+static const struct option options[] = {
+   {"not-admitted", required_argument, 0, 'n'},
+   {"length",       required_argument, 0, 'l'},
+   {"times",        required_argument, 0, 't'},
+   {"stats",        no_argument,      &fp, 3 },
+   {"help",         no_argument,      &fh, 1 },
+   {"version",      no_argument,      &fv, 2 },
+   {0,              0,                 0,  0 }
+};
+
 #define SET_BIT(bitarr, bitpos) ((bitarr) |= (bitpos))
 int handle_args(const int argc, char **argv,
       passwd_conf_t * const restrict config_file)
 {
    size_t length = DEFAULT_PASSWD_SIZE, times = 1;
    int option_index = 0, c, success = 0;
-
-   /* options flags */
-   int fh = 0, fp = 0, fv = 0;
-
-   /*
-    * Declaring arguments.
-    * Since the help message or the version of the program are not really
-    * password related, they have been split from the main `executing-branch` of
-    * the program. Basically the struct defined below tells the `getopt_long` 
-    * to assign a value to ret[x] instead of evaluating the parameter in
-    * `handle_args`. This allows to write a shorter and easier code.
-    *
-    *    Read `man getopt.3`;
-    */
-   /*
-    * TODO
-    *    - Add a `list-profiles` to list profiles (default action)
-    *    - Add a `del-profile` to delete the chosen profile (Not sure)
-    *    - Add a `profile` to select a profile to generate that password
-    *    - Add a 'config' to load a different config file
-    *    - Remove `save` because profiles should do it
-    *    - Add `encryption` to decide which algorithm is to be used (Not sure)
-    *    - Rename `print` to `stats`
-    *    - Add `temp` to generate a temporary password for One Time Use
-    *      (means that I need to implement On Time Passwords)
-    */
-   const struct option options[] = {
-      {"not-admitted", required_argument, 0, 'n'},
-      {"length",       required_argument, 0, 'l'},
-      {"save",         required_argument, 0, 's'},
-      {"times",        required_argument, 0, 't'},
-      {"stats",        no_argument,      &fp, 3 },
-      {"help",         no_argument,      &fh, 1 },
-      {"version",      no_argument,      &fv, 2 },
-      {0,              0,                 0,  0 }
-   };
 
    /* Parsing arguments using getopt_long(..), check man getopt.3 */
    while (1) {
@@ -66,9 +63,6 @@ int handle_args(const int argc, char **argv,
       case '?':
          /* Unsuccessfull matching */
          return 1;
-      case 's':
-         config_file->saving_functionality = ( optarg[0] == 'y' ? 1 : 0 );
-         break;
       case 'l':
          /* Sets the length of the password */
          if ((length = (size_t)atoi(optarg)) && length >= PASSWD_MIN_LENGTH 
