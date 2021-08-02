@@ -54,7 +54,7 @@ config_t *load_config(void)
    */
 
    /* Don't need to map the file, libyaml exposes a function to read a file */
-   char *file = open_f("/etc/ezPass/profiles.yaml");
+   char *file = open_f("./settings.yaml");
    printf("%s", file);
    parse_settings(file);
 
