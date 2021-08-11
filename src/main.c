@@ -12,23 +12,12 @@
  *       - clean/doc rules
  *    
  *    # Features
- *    - Enable the user to save the passwords to a default directory (.local).
  *    - Encrypts those passwords with sodium/libgcrypt.
  *    - Default action will be to ask a password and to print out the name of
  *      the profiles.
  *    - Save passwords in an XML encrypted file.
- *    - Export configuration file in TAR.
  *
  *    # Configuration file
- *    - Enable profiles by editing .yaml file.
- *    - Add an option to specify a new .yaml (temporary) file to read.
- *    - Configuration files structure
- *      \+ etc/
- *        \+ ezPass/
- *          \-- settings.yaml
- *          \+ profiles/
- *            \-- profile1.yaml
- *            \-- profile2.yaml
  *    - settings.yaml
  *       login_pass_hashing :: [ md5, sha256, sha128 ]
  *       password_encryption :: [ .. ]
@@ -61,6 +50,7 @@
 #include <pass/storage.h>
 #include <pass/utils.h>
 #include <pass/args.h>
+#include <pass/term.h>
 
 /* TODO doc */
 static void mem_dealloc_passwd_t(passwd_t** /*passwd_s*/, const size_t /*length*/);
@@ -82,6 +72,12 @@ int main(int argc, char **argv)
    }
 #endif
 
+   char *passwd = ask_pass();
+   printf("Password: %s", passwd);
+   free(passwd);
+   
+
+   return 0;
    /*
     * TODO
     *    Ask for a password key to decrpyt files.
