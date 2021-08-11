@@ -1,6 +1,9 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <stdlib.h>
+/* TODO Adjust those macro thesting things and DEBUG */
 #include <assert.h>
+#include <string.h>
 
 #include <pass/tree.h>
 
@@ -11,6 +14,8 @@
    t_create_siblings(prev, var_name);
 #define t_init_new_child(data, parent); \
    parent->child = t_new_node(data, parent, NULL);
+#define t_init_anonymous_child(parent, child); \
+   parent->child = t_new_node(NULL, parent, child);
 
 static void t_create_siblings(TreeNode* /*first*/, TreeNode* /*second*/);
 static TreeNode *t_new_node(tpointer /*data*/, TreeNode* /*parent*/,
@@ -127,23 +132,36 @@ void t_print_all(TreeNode *root, int curr_layer, int first_layer, int depth)
    if (root == NULL)
       return;
 
-    /* Reaching the right layer */
-    if (curr_layer < first_layer) {
+   /* Reaching the right layer */
+   if (curr_layer < first_layer) {
+      t_print_all(root->child, curr_layer+1, first_layer, depth);
+      t_print_all(root->next, curr_layer, first_layer, depth);
+   } else if (depth == -1 || curr_layer <= first_layer+depth) {
+      printf("Layer [%d]", curr_layer);
+      if (root->parent && root->parent->data)
+         printf("(^ %10s): ", (char *)root->parent->data);
+      else
+         printf("(^ %10s): ", "nil");
+      /* Trying to do some pretty print with long string */
+      if (root->data) {
+         if (strlen(root->data) >= 20) {
+            /* Initializing the new string */
+            char shorter_str[20];
+            strncpy(shorter_str, root->data, 6);
+            strcat(shorter_str, "..");
+
+            printf("%s\n", shorter_str);
+         } else
+            printf("%s\n", (char *)root->data);
+     } else
+        printf("nil\n");
+
+     /* Loops only if required */
+     if (depth == -1 || curr_layer < first_layer+depth) {
        t_print_all(root->child, curr_layer+1, first_layer, depth);
        t_print_all(root->next, curr_layer, first_layer, depth);
-    } else if (depth == -1 || curr_layer <= curr_layer+depth) {
-       if (root->data != NULL)
-          printf("Layer [%d]: %s (^ %s)\n", curr_layer, ((char *)root->data),
-                (root->parent ? (char *)root->parent->data : "nil"));
-       else
-          printf("Layer [%d]: nil\n", curr_layer);
-
-       /* Loops only if required */
-       if (depth == -1 || curr_layer < curr_layer+depth) {
-         t_print_all(root->child, curr_layer+1, first_layer, depth);
-         t_print_all(root->next, curr_layer, first_layer, depth);
-       }
-    }
+     }
+   }
 }
 
 void t_print_root(TreeNode *root)

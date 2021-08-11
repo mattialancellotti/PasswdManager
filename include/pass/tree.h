@@ -12,9 +12,29 @@ typedef struct Node {
   struct Node *child;
 } TreeNode;
 
+/* TODO doc */
+TreeNode *t_init();
+
+/* TODO:
+ *    - Rename this to t_insert
+ *    - Insert a new node at the last pos
+ */
 TreeNode *t_insert_node(TreeNode* /*parent*/, tpointer /*data*/);
+
+/* TODO:
+ *    - Create t_insert_at(parent, position, data)
+ */
+
+/*  TODO:
+ *    - Only a define for t_insert_at
+ */
 TreeNode *t_insert_brother(TreeNode* /*brother*/, TreeNode* /*new_one*/);
 void t_tree_destroy(TreeNode* /*root*/);
+
+/*
+ * TODO:
+ *    - Rename to t_count_children
+ */
 int t_n_children(TreeNode* /*parent*/);
 
 /* TODO update print macros to accept types */
