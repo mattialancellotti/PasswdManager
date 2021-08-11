@@ -8,7 +8,6 @@
 
 #include <pass/yaml_parser.h>
 #include <pass/tree.h>
-#include <yaml/parser.h>
 
 /*
  * This function parses any kind of yaml file and saves the content in a N-ary
@@ -17,7 +16,8 @@
  * In this case the function uses the implementation from glib to parse the
  * yaml file and then returns the root of the tree back to the caller function.
  */
-static TreeNode *process_block(TreeNode* /*parent*/, yaml_parser_t* /*parser*/);
+static TreeNode *process_block(TreeNode* /*parent*/, yaml_parser_t* /*parser*/,
+                                 yaml_event_type_t /*prev_event*/);
 
 const config_t *parse_settings(const char *file)
 {
@@ -33,35 +33,21 @@ const config_t *parse_settings(const char *file)
    report("Initialization successful.");
    report("Attempt at creating the tree.");
 
-   const struct yaml_option (*yaml_settings_options)[] = &(struct yaml_option[]){
-      {"profiles_enabled",   boolean, 'e'},
-      {"accept_same_passwd", boolean, 'a'},
-      {"passwd_min_len", number, 'i'},
-      {"passwd_max_len", number, 'x'},
-      {"passwds_file", string, 'p'},
-      {0,              0,       0 }
-   };
-
-   printf("%s\n", (*yaml_settings_options)[1].yaml_key);
-
    /* Creatin the tree */
-   TreeNode *tree = process_block(NULL, &parser);
+   TreeNode *tree = process_block(NULL, &parser, YAML_NO_EVENT);
 
-#if defined(__debug__)
-   t_print_structure(tree);
-#endif
+   call(t_print_structure(tree));
+
    report("Tree has been created.");
    yaml_parser_delete(&parser);
-
-   /* Parsing infos */
-  // config_t *settings = malloc(sizeof(config_t));
 
    t_tree_destroy(tree);
    report("Tree has been deleted.");
    return NULL;
 }
 
-static TreeNode *process_block(TreeNode *parent, yaml_parser_t *parser)
+static TreeNode *process_block(TreeNode *parent, yaml_parser_t *parser, 
+                                 yaml_event_type_t prev_event)
 {
    /* Defining an event */
    yaml_event_t event;
@@ -78,33 +64,38 @@ static TreeNode *process_block(TreeNode *parent, yaml_parser_t *parser)
 
       /* Creating the tree by checking which event occurred */
       if (event.type == YAML_SCALAR_EVENT) {
-         /* Adding a new child to the current parent */
-         report("YAML_SCALAR_EVENT");
-         parent = t_insert_node(parent, 
+         if (prev_event == YAML_SCALAR_EVENT)
+            /* Adding a new child to the current parent */
+            parent = t_insert_node(parent, 
                strdup((const char *)event.data.scalar.value));
-      } else if (parent &&
-            (event.type == YAML_MAPPING_START_EVENT ||
-             event.type == YAML_SEQUENCE_START_EVENT)) {
-        /* 
-         * Checks for children. If anyone occurs then the new brother is
-         * added at the end of the `line`.
-         */
-         if (parent->child == NULL) {
-            parent = process_block(parent, parser);
-         } else if (parent->child) {
-            TreeNode *tmp_child = parent->child;
-            t_cycle_through_all(tmp_child);
+         printf("> %s\n", (char *)event.data.scalar.value);
+      } else if (event.type == YAML_MAPPING_START_EVENT) {
+         parent = t_insert_node(parent, NULL);
+         TreeNode *tmp_node = parent->child;
 
-            tmp_child = process_block(tmp_child, parser);
+         /* Checks if the current context is a list of yaml `objects` */
+         if (prev_event == YAML_SEQUENCE_START_EVENT) {
+            parent->child = process_block(tmp_node, parser, event.type);
+         } else {
+            t_cycle_through_all(tmp_node);
+            tmp_node = process_block(tmp_node, parser, event.type);
          }
-         
-         break;
+
+      } else if (event.type == YAML_SEQUENCE_START_EVENT) {
+         parent = process_block(parent->child, parser, event.type);
       }
 
-      if (event.type != YAML_STREAM_END_EVENT)
+      if (event.type == YAML_NO_EVENT)
+         break;
+      printf("%d\n", event.type);
+      /* Freeing memory */
+      if (event.type != YAML_STREAM_END_EVENT  &&
+          event.type != YAML_SEQUENCE_END_EVENT)
          yaml_event_delete(&event);
 
-   } while (event.type != YAML_STREAM_END_EVENT);
+   } while (event.type != YAML_STREAM_END_EVENT  && 
+            event.type != YAML_SEQUENCE_END_EVENT);
+   yaml_event_delete(&event);
 
    /* Returning the (sub)-tree */
    return parent;
