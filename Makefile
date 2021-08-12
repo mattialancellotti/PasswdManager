@@ -5,7 +5,7 @@ SRCDIR = src
 
 VPATH = src:include
 OBJS := $(addprefix \
-       $(OBJSDIR)/, yaml_parser.o storage.o args.o utils.o main.o tree.o)
+       $(OBJSDIR)/, yaml_parser.o storage.o args.o main.o tree.o)
 DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
@@ -14,7 +14,7 @@ CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
 LDLIBS = -lm -lyaml
 
 ifdef EXPERIMENTAL
-  OBJS += term.o os.o crypto.o
+  OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o)
   CFLAGS += -D__experimental__
 endif
 
