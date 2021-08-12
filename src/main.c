@@ -47,10 +47,15 @@
 #  include <assert.h>
 #endif
 
+#include <pass/defs.h>
 #include <pass/storage.h>
 #include <pass/utils.h>
 #include <pass/args.h>
-#include <pass/term.h>
+#if defined(__experimental__)
+#  include <pass/term.h>
+#  include <pass/os.h>
+#  include <pass/crypto.h>
+#endif
 
 /* TODO doc */
 static void mem_dealloc_passwd_t(passwd_t** /*passwd_s*/, const size_t /*length*/);
@@ -72,23 +77,33 @@ int main(int argc, char **argv)
    }
 #endif
 
-   char *passwd = ask_pass();
-   printf("Password: %s", passwd);
-   free(passwd);
-   
-
-   return 0;
+#if defined(__experimental__)
    /*
     * TODO
     *    Ask for a password key to decrpyt files.
     *    This is to be done here so that there won't be any kind of useless load
     *    if the user enters the wrong password.
     */
-   if (load_config()) {
-      fprintf(stderr, "Couldn't initiate the saving file.");
-      return EXIT_FAILURE;
-   }
+   char *passwd = ask_pass();
+   printf("Password: %s\n", passwd);
+   
+   char *home = users_path();
+   printf("%s\n", home);
+   free(home);
 
+
+   char *out = hash_password(passwd);
+   printf("%s\n", out);
+
+   /* Checking the password */
+   if (crypto_pwhash_str_verify(out, "ciao", strlen("ciao")) == -1)
+      perror("Wrong password");
+
+   free(out);
+   free(passwd);
+   return 0;
+
+#endif
    /* 
     * This struct rapresent a configuration block with the properties of a
     * password. The generated password should follow those properties.
@@ -98,10 +113,6 @@ int main(int argc, char **argv)
    /*
     * TODO
     *    - Needs to be updated by following what happens in the options array
-    *    - Might have to refactor this one since profiles are gonna take over.
-    *      An idea is that passwd_conf_t will represent the configuration for
-    *      the program that will store options such as the saving_point, export
-    *      functionalities, algorithms and formatting options.
     */
    passwd_conf_t config_file = { 
       .saving_point = NULL,
@@ -135,8 +146,6 @@ int main(int argc, char **argv)
     */
    /* Allocating the array of passwords */
    char *passwords[config_file.times];
-
-   //passwd_profile_t *passwords[config_file.times]
 
    /* Creates the passwords, saves them and execute the check_passwd on them */
    for (size_t i=0; i<config_file.times; i++) {
