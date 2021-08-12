@@ -11,4 +11,8 @@
    if (errno == status) { \
       fprintf(stderr, msg);
 
+#define just_exit(errno, status, code); \
+      if (errno == status) \
+         return code; \
+
 #endif
