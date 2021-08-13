@@ -18,6 +18,9 @@ typedef struct {
 } passwd_conf_t;
 
 /* This struct represent settings.yml */
+/* TODO:
+ *  - Delete this thing;
+ */
 typedef struct {
    char *passwds_file;
    unsigned max_l, min_l;
