@@ -1,6 +1,12 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define ifdef_free(var); \
+   if (var != NULL) { \
+      free(var);  \
+      var = NULL; \
+   }
+
 #define fatal_err(errno, status, msg, code); \
    if (errno == status) { \
       perror(msg); \
