@@ -15,7 +15,11 @@ typedef struct {
  */
 char *users_path(void);
 
+/* TODO:
+ *  - doc
+ */
 file_t *os_fopen_rw(const char* /*f_name*/);
+int os_fwrite(const int /*fd*/, const char* /*content*/);
 int os_fclose(file_t* /*file*/);
 
 #endif
