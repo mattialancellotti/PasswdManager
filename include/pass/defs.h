@@ -11,9 +11,17 @@
    if (errno == status) { \
       fprintf(stderr, msg);
 
-#define just_exit(errno, status, code); \
+#define exit_eq(errno, status, code); \
       if (errno == status) \
-         return code; \
+         return code;
+
+#define exit_lt(errno, status, code); \
+      if (errno < status) \
+         return code;
+
+#define exit_gt(errno, status, code); \
+      if (errno > status) \
+         return code;
 
 #if defined(__libsodium__)
 #  define secure_malloc(var, type); \
