@@ -14,7 +14,7 @@
 static int get_flags(char* /*str*/);
 
 /* options flags */
-static int fh = 0, fp = 0, fv = 0;
+static int fh = 0, fp = 0, fv = 0, fi = 0;
 
 /*
  * Declaring arguments.
@@ -37,6 +37,8 @@ static const struct option options[] = {
    {"id",           required_argument, 0, 'i'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
+   /* TODO: Implemente init arg */
+   {"init",         no_argument,      &fi, 4 },
    {"stats",        no_argument,      &fp, 3 },
    {"help",         no_argument,      &fh, 1 },
    {"version",      no_argument,      &fv, 2 },
