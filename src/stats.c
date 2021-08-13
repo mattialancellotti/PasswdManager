@@ -12,9 +12,9 @@
  */
 void check_passwd(passwd_t ** passwd_created, const size_t length) {
    /* Checking the parameters */
-   just_exit(passwd_created, NULL, );
-   just_exit(*passwd_created, NULL, );
-   just_exit((*passwd_created)->passwd, NULL, );
+   exit_eq(passwd_created, NULL, );
+   exit_eq(*passwd_created, NULL, );
+   exit_eq((*passwd_created)->passwd, NULL, );
 
    size_t pwlen = strlen((*passwd_created)->passwd);
    enum TYPE last_c = NONE;
