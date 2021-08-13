@@ -1,7 +1,7 @@
 #ifndef ARGS_H
 #define ARGS_H
 
-#include "main.h"
+#include <pass/main.h>
 
 #define PASSWD_MIN_LENGTH 4
 #define PASSWD_MAX_LENGTH 20
