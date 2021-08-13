@@ -1,3 +1,5 @@
+#define _XOPEN_SOURCE 500
+
 /*
  * TODO:
  *    # Urgent
@@ -38,10 +40,6 @@
 #  include <pass/crypto.h>
 #endif
 
-/* TODO doc */
-static void mem_dealloc_passwd_t(passwd_conf_t** /*passwd_s*/);
-static passwd_conf_t* mem_alloc_passwd_t(void);
-
 /* Just the main function */
 int main(int argc, char **argv)
 {
@@ -65,23 +63,28 @@ int main(int argc, char **argv)
     *    This is to be done here so that there won't be any kind of useless load
     *    if the user enters the wrong password.
     */
-   char *passwd = ask_pass();
+   char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
+
+   passwd = ask_pass();
    printf("Password: %s\n", passwd);
    
-   char *home = users_path();
-   printf("%s\n", home);
-   free(home);
+   real_hash = load_hash();
+   if (real_hash == NULL) {
+      fprintf(stderr, "User ezPass --init");
+      goto exit;
+   }
 
-
-   char *out = hash_password(passwd);
-   printf("%s\n", out);
+   new_hash = hash_password(passwd);
 
    /* Checking the password */
-   if (crypto_pwhash_str_verify(out, "ciao", strlen("ciao")) == -1)
+   size_t hslen = strlen(real_hash);
+   if (crypto_pwhash_str_verify(new_hash, real_hash, hslen) == -1)
       perror("Wrong password");
 
-   free(out);
-   free(passwd);
+exit:
+   ifdef_free(real_hash);
+   ifdef_free(new_hash);
+   ifdef_free(passwd);
    return 0;
 
 #endif
@@ -137,12 +140,50 @@ int main(int argc, char **argv)
    return EXIT_SUCCESS;
 }
 
+char *load_hash(void)
+{
+   /* Preparing some stuff */
+   char *home = users_path();
+
+   /* Checking if the password is correct */
+   const char *hash_file = "/.local/share/ezPass/passwd";
+   char *actual_hash = NULL;
+
+   char *hash_location = malloc(strlen(home) + strlen(hash_file) + 1);
+   hash_location = strcpy(hash_location, home);
+   hash_location = strcat(hash_location, hash_file);
+
+   file_t *hash;
+   if ((hash = os_fopen_rw(hash_location)) == NULL)
+      goto hash_exit;
+
+   if (hash->file_content == NULL)
+      /* TODO:
+       *  - init the password
+       */
+      goto hash_exit;
+
+   /* Saving the hash and destroying the hash file */
+   actual_hash = strdup(hash->file_content);
+   os_fclose(hash);
+
+hash_exit:
+   /* Freeing the memory */
+   ifdef_free(hash_location);
+   ifdef_free(home);
+
+   return actual_hash;
+}
+
 /* TODO:
  *  - Move this to its own file
  */
 /* Really basic way of creating a password */
 char *create_passwd(const size_t length, const int flags)
 {
+   /* TODO:
+    *  - secure_malloc;
+    */
    char *passwd = malloc(sizeof(char)*length+1);
    size_t i=0;
    srand(time(NULL));
@@ -175,23 +216,4 @@ void help()
    printf("\t    --stats       : to print the stats\n"  );
    printf("\t    --help        : to show this message\n");
    printf("\t    --version     : to print the current version of the program\n");
-}
-
-/* Safely deallocates a password */
-static void mem_dealloc_passwd_t(passwd_conf_t ** passwd_s)
-{
-   /* Some controls to avoid segmatation faults */
-   if (*passwd_s) {
-      free(*passwd_s);
-      *passwd_s = NULL;
-   }
-}
-
-/* TODO: Fix the problem with secure_malloc() */
-static passwd_conf_t *mem_alloc_passwd_t(void)
-{
-   /* Allocates and initialize the struct `passwd_conf_t` */
-   //secure_malloc(passwd_conf_t *, new);
-
-   return NULL;
 }
