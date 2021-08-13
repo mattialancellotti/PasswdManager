@@ -14,7 +14,7 @@
  */
 char *hash_password(const char *password)
 {
-   just_exit(password, NULL, NULL);
+   exit_eq(password, NULL, NULL);
 
    /* Defining parameters */
    char hash[crypto_pwhash_STRBYTES];
@@ -31,11 +31,9 @@ char *hash_password(const char *password)
 
 int check_hash(const char *hash, const char *passwd)
 {
-   /* TODO:
-    *    - Need to check hash's length (>= crypto_pwhash_STRBYTES)
-    */
-   just_exit(hash, NULL, -1);
-   just_exit(passwd, NULL, -1);
+   exit_eq(hash, NULL, -1);
+   exit_eq(passwd, NULL, -1);
+   exit_lt(strlen(hash), crypto_pwhash_STRBYTES, -1);
 
    /* Checking the hash */
    int err = crypto_pwhash_str_verify(hash, passwd, strlen(passwd));
@@ -45,13 +43,14 @@ int check_hash(const char *hash, const char *passwd)
 int encrypt_content(const unsigned char *content, const char *passwd)
 {
    /* Checking if the content is not empty */
-   just_exit(content, NULL, -1);
+   exit_eq(content, NULL, -1);
 
    /* Defining parameters */
    size_t clen = strlen((const char *)content);
    size_t plen = strlen(passwd);
 
    unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
+   /* TODO: Fixthis with secure_malloc() */
    unsigned char *key = malloc(sizeof(unsigned char) *
                                  crypto_aead_chacha20poly1305_KEYBYTES);
    unsigned char ciphertext[clen + crypto_aead_chacha20poly1305_ABYTES];
