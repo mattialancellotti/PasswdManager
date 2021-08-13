@@ -26,7 +26,7 @@ char *users_path(void)
    /* TODO:
     *    - Move the warning message to the main function
     */
-   fatal_err(user_info, NULL, "Couldn't find the user", NULL);
+   just_exit(user_info, NULL, NULL);
 
    /* Saving the home directory of the current user */
    char *home_dir = strdup(user_info->pw_dir);
