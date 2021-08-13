@@ -45,14 +45,6 @@ config_t *load_config(void)
       strcat(strcpy(conf_file,  home_dir->pw_dir), "/.config/ezPass/settings.yaml")
    };
 
-   /*
-   for (size_t i = 0; i < 3; i++) {
-      if (file = map_file(settings_files[i])) {
-         break;
-      }
-   }
-   */
-
    /* Don't need to map the file, libyaml exposes a function to read a file */
    char *file = open_f("./settings.yaml");
    printf("%s", file);
