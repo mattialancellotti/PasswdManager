@@ -50,8 +50,7 @@ int encrypt_content(const unsigned char *content, const char *passwd)
    size_t plen = strlen(passwd);
 
    unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
-   /* TODO: Fixthis with secure_malloc() */
-   unsigned char *key = malloc(sizeof(unsigned char) *
+   unsigned char *key = sodium_malloc(sizeof(unsigned char) *
                                  crypto_aead_chacha20poly1305_KEYBYTES);
    unsigned char ciphertext[clen + crypto_aead_chacha20poly1305_ABYTES];
    unsigned long long ciphertext_len;
