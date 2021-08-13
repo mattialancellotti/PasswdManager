@@ -1,4 +1,7 @@
 #define _DEFAULT_SOURCE
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
 
@@ -25,16 +28,13 @@ static int fh = 0, fp = 0, fv = 0;
  */
 /*
  * TODO:
- *    - Add a `list-profiles` to list profiles (default action)
- *    - Add a `del-profile` to delete the chosen profile (Not sure)
- *    - Add a `profile` to select a profile to generate that password
- *    - Add a 'config' to load a different config file
- *    - Add `encryption` to decide which algorithm is to be used (Not sure)
  *    - Add `temp` to generate a temporary password for One Time Use
  *      (means that I need to implement On Time Passwords)
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
+   /* TODO: Implement id arg */
+   {"id",           required_argument, 0, 'i'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
    {"stats",        no_argument,      &fp, 3 },
@@ -63,6 +63,8 @@ int handle_args(const int argc, char **argv,
       case '?':
          /* Unsuccessfull matching */
          return 1;
+      case 'i':
+         break;
       case 'l':
          /* Sets the length of the password */
          if ((length = (size_t)atoi(optarg)) && length >= PASSWD_MIN_LENGTH 
@@ -74,6 +76,11 @@ int handle_args(const int argc, char **argv,
       case 'n':
          /* Uses `get_flags(..)` to get an unsigned flag of banned characters */
 	 config_file->char_not_admitted = get_flags(optarg);
+         if (config_file->char_not_admitted & 15) {
+            fprintf(stderr, "Fatal: can't accept all types as argument\n");
+            return -1;
+         }
+
          break;
       case 't':
          /* Sets the length of the password */
