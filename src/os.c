@@ -1,5 +1,6 @@
 #define _XOPEN_SOURCE 500
 
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -12,21 +13,11 @@
 #include <pass/defs.h>
 #include <pass/os.h>
 
-/* TODO:
- *    - Should probably extract them into a separate file
- */
-static char *open_f(const char* /*f_name*/);
-static int close_f(const char* /*addr*/);
-
 char *users_path(void)
 {
    /* Getting user's uid to search its default $HOME directory */
    struct passwd *user_info = getpwuid(getuid());
-
-   /* TODO:
-    *    - Move the warning message to the main function
-    */
-   just_exit(user_info, NULL, NULL);
+   exit_eq(user_info, NULL, NULL);
 
    /* Saving the home directory of the current user */
    char *home_dir = strdup(user_info->pw_dir);
@@ -35,7 +26,7 @@ char *users_path(void)
    return home_dir;
 }
 
-static char *open_f(const char *f_name)
+file_t *os_fopen_rw(const char *f_name)
 {
    /* Defining file infors like its descriptor and all the other information */
    struct stat f_infos;
@@ -46,7 +37,7 @@ static char *open_f(const char *f_name)
 
    /* open() is a POSIX syscall. Take a look at open(2) in the man pages */
    /* TODO Might wanna add those  flags mentioned in the init_io function */
-   fd = open(f_name, O_RDONLY);
+   fd = open(f_name, O_RDWR);
    fatal_err(fd, -1, "File descriptor not set", NULL);
 
    /* Grabbing infos about the file and mapping it */
@@ -57,17 +48,38 @@ static char *open_f(const char *f_name)
       mmap(NULL, f_infos.st_size, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
    fatal_err(content, MAP_FAILED, "Couldn't read the file", NULL);
 
-   /* Returning a pointer to the content of the file */
-   return content;
+   /* Definin the new file */
+   /* TODO: Fix with secure_malloc */
+   file_t *ofile = malloc(sizeof(file_t));
+   ofile->file_content = content;
+   ofile->fd = fd;
+
+   /* Returning a pointer to the file */
+   return ofile;
 }
 
-static int close_f(const char *addr)
+int os_fclose(file_t *file)
 {
-   /* Checking the file's name */
-   fatal_err(addr, NULL, "File's name is null", 0);
+   /* Checking if the file is not null */
+   exit_eq(file, NULL, -1);
+   exit_eq(file->file_content, NULL, -1);
+
+   /* Syincing the content of the file */
+   size_t len = strlen(file->file_content);
+   int sync = msync(file->file_content, len, MS_SYNC|MS_INVALIDATE);
+   fatal_err(sync, -1, "Couldn't sync the file", -1);
 
    /* Unmapping the file */
-   //munmap(addr, 
-   
+   int umap = munmap(file->file_content, len);
+   fatal_err(umap, -1, "Couldn't unmap the file", -1);
+
+   /* Closing the file descriptor */
+   int desc = close(file->fd);
+   fatal_err(desc, -1, "Couldn't close the file desc.", -1);
+
+   /* Freeing the structure */
+   free(file);
+
+   /* Returns successfully */
    return 0;
 }
