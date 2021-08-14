@@ -63,31 +63,22 @@ int main(int argc, char **argv)
     *    This is to be done here so that there won't be any kind of useless load
     *    if the user enters the wrong password.
     */
+
+   /* Important paths */
+   char *home_dir = users_path();
+   char *local_passwd_hash = "/.local/share/ezPass/passwd";
+   char *local_passwd_db   = "/.local/share/ezPass/passwds";
+
+   /* Creating an array of config/saving files */
+   char passwd_hash_file[strlen(home_dir) + strlen(local_passwd_hash) + 1];
+   char passwd_db_file[strlen(home_dir)   + strlen(local_passwd_db)   + 1];
+   char *program_files[2] = {
+      strcat(strcpy(passwd_hash_file, home_dir), local_passwd_hash),
+      strcat(strcpy(passwd_db_file, home_dir),   local_passwd_db)
+   };
+
    char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
-
-   passwd = ask_pass();
-   printf("Password: %s\n", passwd);
-   
-   real_hash = load_hash();
-   if (real_hash == NULL) {
-      fprintf(stderr, "User ezPass --init");
-      goto exit;
-   }
-
-   new_hash = hash_password(passwd);
-
-   /* Checking the password */
-   size_t hslen = strlen(real_hash);
-   if (crypto_pwhash_str_verify(new_hash, real_hash, hslen) == -1)
-      perror("Wrong password");
-
-exit:
-   ifdef_free(real_hash);
-   ifdef_free(new_hash);
-   ifdef_free(passwd);
-   return 0;
-
-#endif
+      
    /* 
     * This struct rapresent a configuration block with the properties of a
     * password. The generated password should follow those properties.
@@ -101,11 +92,47 @@ exit:
       .char_not_admitted = 0,
    };
 
-
    /* Checking for errors and then tries to exit the right way */
-   int success;
-   if ((success = handle_args(argc, argv, &config_file)) == -1)
-      return EXIT_FAILURE;
+   /* TODO:
+    *  - Create a list of errors (take a look at the OSH project);
+    */
+   int success = handle_args(argc, argv, &config_file);
+   switch (success) {
+      case -1: goto exit;
+      case -2: pw_init(program_files[0]); goto exit;
+      default: break;
+   }
+
+   /* Asking the password */
+   printf("Insert the password: ");
+   passwd = ask_pass();
+
+   printf("\n%s", passwd);
+   
+   real_hash = pw_hash(program_files[0]);
+   if (real_hash == NULL) {
+      fprintf(stderr, "User ezPass --init");
+      goto exit;
+   }
+
+   /* Checking the password */
+   size_t hslen = strlen(passwd);
+   if (crypto_pwhash_str_verify(real_hash, passwd, hslen) == -1)
+      perror("Wrong password");
+
+exit:
+   ifdef_free(home_dir);
+   ifdef_free(real_hash);
+   ifdef_free(new_hash);
+   ifdef_free(passwd);
+
+   /* TODO:
+    *  - return_status;
+    */
+   return 0;
+
+#endif
+
 
    /* Checking if the user wants to see the help message and the version */
 #define VERSION 0.2
@@ -140,21 +167,46 @@ exit:
    return EXIT_SUCCESS;
 }
 
-char *load_hash(void)
+int pw_init(const char *hash_file)
 {
-   /* Preparing some stuff */
-   char *home = users_path();
+   char *passwd = NULL, *verification_passwd = NULL;
+   char *hash;
 
-   /* Checking if the password is correct */
-   const char *hash_file = "/.local/share/ezPass/passwd";
+   /* Asking the password */
+   printf("Insert a password: ");
+   passwd = ask_pass();
+
+   printf("\nInsert the password again: ");
+   verification_passwd = ask_pass();
+
+   /* The passwords are not the same */
+   if (strcmp(passwd, verification_passwd))
+      return -1;
+
+   /* Creating the hash */
+   hash = hash_password(passwd);
+
+   /* Writing the hash password to the file */
+   /* TODO:
+    *  - Checking;
+    */
+   file_t *file = os_fopen_rw(hash_file);
+   int werr = os_fwrite(file->fd, hash);
+   int cerr = os_fclose(file);
+
+   free(passwd);
+   free(verification_passwd);
+   free(hash);
+
+   return 0;
+}
+
+char *pw_hash(const char *hash_file)
+{
+   /* Trying to read hash file */
    char *actual_hash = NULL;
-
-   char *hash_location = malloc(strlen(home) + strlen(hash_file) + 1);
-   hash_location = strcpy(hash_location, home);
-   hash_location = strcat(hash_location, hash_file);
-
    file_t *hash;
-   if ((hash = os_fopen_rw(hash_location)) == NULL)
+   if ((hash = os_fopen_rw(hash_file)) == NULL)
       goto hash_exit;
 
    if (hash->file_content == NULL)
@@ -165,12 +217,10 @@ char *load_hash(void)
 
    /* Saving the hash and destroying the hash file */
    actual_hash = strdup(hash->file_content);
-   os_fclose(hash);
 
 hash_exit:
    /* Freeing the memory */
-   ifdef_free(hash_location);
-   ifdef_free(home);
+   os_fclose(hash);
 
    return actual_hash;
 }
@@ -183,6 +233,7 @@ char *create_passwd(const size_t length, const int flags)
 {
    /* TODO:
     *  - secure_malloc;
+    *  - lock memory;
     */
    char *passwd = malloc(sizeof(char)*length+1);
    size_t i=0;
