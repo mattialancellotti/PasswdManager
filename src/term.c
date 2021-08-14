@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -23,7 +25,10 @@ char *ask_pass(void)
 
    /* Termporary solution, I know this is bad */
    char *str = NULL;
-   scanf("%m[a-z]", &str);
+   size_t default_len = 20;
+   size_t len = getline(&str, &default_len, stdin);
+   fflush(stdin);
+
    /* Enabling echo */
    term.c_lflag ^= ECHO;
    if (tcsetattr(0, TCSANOW, &term) == -1)
