@@ -50,7 +50,6 @@ file_t *os_fopen_rw(const char *f_name)
    /* Checking if the file is new/empty */
    if (f_infos.st_size == 0) {
       /* Definin the new file */
-      /* TODO: Fix with secure_malloc */
       file_t *ofile = malloc(sizeof(file_t));
       ofile->file_content = content;
       ofile->fd = fd;
@@ -64,7 +63,6 @@ file_t *os_fopen_rw(const char *f_name)
    fatal_err(content, MAP_FAILED, "mmap", NULL);
 
    /* Definin the new file */
-   /* TODO: Fix with secure_malloc */
    file_t *ofile = malloc(sizeof(file_t));
    ofile->file_content = content;
    ofile->fd = fd;
@@ -86,14 +84,18 @@ int os_fwrite(int fd, const char *content)
    return 0;
 }
 
-/* TODO:
- *  - Close the file descriptor even if the file is not mapped
- */
 int os_fclose(file_t *file)
 {
    /* Checking if the file is not null */
    exit_eq(file, NULL, -1);
-   exit_eq(file->file_content, NULL, -1);
+
+   /* Closing the file descriptor */
+   int desc = close(file->fd);
+   fatal_err(desc, -1, "Couldn't close the file desc.", -1);
+
+   /* This is only needed for unmapping the file */
+   if (file->file_content == NULL)
+      goto close_exit;
 
    /* Syincing the content of the file */
    size_t len = strlen(file->file_content);
@@ -104,11 +106,9 @@ int os_fclose(file_t *file)
    int umap = munmap(file->file_content, len);
    fatal_err(umap, -1, "Couldn't unmap the file", -1);
 
-   /* Closing the file descriptor */
-   int desc = close(file->fd);
-   fatal_err(desc, -1, "Couldn't close the file desc.", -1);
 
    /* Freeing the structure */
+close_exit:
    free(file);
 
    /* Returns successfully */
