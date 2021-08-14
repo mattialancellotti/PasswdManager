@@ -28,8 +28,9 @@ static int fh = 0, fp = 0, fv = 0, fi = 0;
  */
 /*
  * TODO:
- *    - Add `temp` to generate a temporary password for One Time Use
+ *    - Add `temp` to generate a temporary password for One Time Use;
  *      (means that I need to implement On Time Passwords)
+ *    - Proper implementation of arguments like `--init`;
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
@@ -37,7 +38,6 @@ static const struct option options[] = {
    {"id",           required_argument, 0, 'i'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
-   /* TODO: Implemente init arg */
    {"init",         no_argument,      &fi, 4 },
    {"stats",        no_argument,      &fp, 3 },
    {"help",         no_argument,      &fh, 1 },
@@ -58,13 +58,17 @@ int handle_args(const int argc, char **argv,
       if (c == -1)
          break;
 
+      /* The `--init` argument is the only one considered if present */
+      if (fi)
+         return -2;
+
       switch (c) {
       case 0:
          /* Found but should not handle it */
          break;
       case '?':
          /* Unsuccessfull matching */
-         return 1;
+         return -1;
       case 'i':
          break;
       case 'l':
