@@ -44,6 +44,10 @@ char *create_passwd(const size_t /*length*/, const int /*flags*/);
  */
 void help(void);
 
-char *load_hash(void);
+/* TODO:
+ *  - doc;
+ */
+int pw_init(const char* /*hash_file*/);
+char *pw_hash(const char* /*hash_file*/);
 
 #endif
