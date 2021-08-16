@@ -18,16 +18,17 @@
  *    - Save passwords in an XML encrypted file.
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include <ctype.h>
 #include <string.h>
 
-#if defined(__libsodium__)
+#if defined(_HAVE_SODIUM)
 #  include <sodium.h>
 #endif
 
-#if defined(__debug__)
+#if defined(_HAVE_DEBUG)
 #  include <assert.h>
 #endif
 
@@ -43,7 +44,7 @@
 /* Just the main function */
 int main(int argc, char **argv)
 {
-#if defined(__libsodium__)
+#if defined(_HAVE_SODIUM)
    /*
     * Generating entropy and preparing some other things.
     * I'd recommend to take a look at https://doc.libsodium.org/usage to know
@@ -116,8 +117,7 @@ int main(int argc, char **argv)
    }
 
    /* Checking the password */
-   size_t hslen = strlen(passwd);
-   if (crypto_pwhash_str_verify(real_hash, passwd, hslen) == -1)
+   if (hash_check(real_hash, passwd) == -1)
       perror("Wrong password");
 
 exit:

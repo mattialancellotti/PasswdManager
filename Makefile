@@ -18,13 +18,13 @@ ifdef EXPERIMENTAL
   CFLAGS += -D__experimental__
 endif
 
-ifdef LIBSODIUM
-  CFLAGS += -D__libsodium__
+ifdef SODIUM
+  CFLAGS += -D_HAVE_SODIUM
   LDLIBS += -lsodium
 endif
 
 ifdef DEBUG
-  CFLAGS += -ggdb -D__debug__ -fsanitize=address,undefined
+  CFLAGS += -ggdb -D_HAVE_DEBUG -fsanitize=address,undefined
 endif
 
 
