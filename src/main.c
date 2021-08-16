@@ -107,32 +107,22 @@ int main(int argc, char **argv)
    /* Asking the password */
    printf("Insert the password: ");
    passwd = ask_pass();
+   printf("\n");
 
-   printf("\n%s", passwd);
-   
+   /* Getting the actual hash from the file */
    real_hash = pw_hash(program_files[0]);
    if (real_hash == NULL) {
-      fprintf(stderr, "User ezPass --init");
+      fprintf(stderr, "User ezPass --init\n");
       goto exit;
    }
 
    /* Checking the password */
-   if (hash_check(real_hash, passwd) == -1)
-      perror("Wrong password");
-
-exit:
-   ifdef_free(home_dir);
-   ifdef_free(real_hash);
-   ifdef_free(new_hash);
-   ifdef_free(passwd);
-
-   /* TODO:
-    *  - return_status;
-    */
-   return 0;
+   if (hash_check(real_hash, passwd) == -1) {
+      fprintf(stderr, "Wrong password\n");
+      goto exit;
+   }
 
 #endif
-
 
    /* Checking if the user wants to see the help message and the version */
 #define VERSION 0.2
@@ -145,6 +135,8 @@ exit:
       return EXIT_SUCCESS;
    }
 
+   /* TODO: Temporary solution (Basically this is a namepsace) */
+   /* Generate */ {
    /* Allocating the array of passwords */
    char *passwords[config_file.times];
 
@@ -164,6 +156,18 @@ exit:
 	 sleep(1);
    }
 
+   }
+#if defined(__experimental__)
+exit:
+   ifdef_free(home_dir);
+   ifdef_free(real_hash);
+   ifdef_free(new_hash);
+   ifdef_free(passwd);
+#endif
+
+   /* TODO:
+    *  - return_status;
+    */
    return EXIT_SUCCESS;
 }
 
