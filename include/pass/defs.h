@@ -17,6 +17,7 @@
    if (errno == status) { \
       fprintf(stderr, msg);
 
+/* Use the same do_if/exit_if as the BrainFuck Interpreter */
 #define exit_eq(errno, status, code); \
       if (errno == status) \
          return code;
