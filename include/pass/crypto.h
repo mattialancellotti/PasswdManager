@@ -2,6 +2,6 @@
 #define CRYPTO_H
 
 char *hash_password(const char* /*password*/);
-int check_hash(const char* /*hash*/, const char* /*passwd*/);
+int hash_check(const char* /*hash*/, const char* /*passwd*/);
 
 #endif

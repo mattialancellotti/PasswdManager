@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined(__libsodium__)
+#if defined(_HAVE_SODIUM)
 #  include <sodium.h>
 #endif
 
@@ -29,7 +29,7 @@ char *hash_password(const char *password)
    return strdup(hash);
 }
 
-int check_hash(const char *hash, const char *passwd)
+int hash_check(const char *hash, const char *passwd)
 {
    exit_eq(hash, NULL, -1);
    exit_eq(passwd, NULL, -1);
