@@ -31,9 +31,9 @@ char *hash_password(const char *password)
 
 int hash_check(const char *hash, const char *passwd)
 {
+   /* Checking parameters */
    exit_eq(hash, NULL, -1);
    exit_eq(passwd, NULL, -1);
-   exit_lt(strlen(hash), crypto_pwhash_STRBYTES, -1);
 
    /* Checking the hash */
    int err = crypto_pwhash_str_verify(hash, passwd, strlen(passwd));
