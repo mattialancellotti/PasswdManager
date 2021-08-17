@@ -7,6 +7,13 @@
       var = NULL; \
    }
 
+/*
+ * TODO:
+ *  - system_err(condition, msg, exit_code);
+ *    To safely inform the user that something out og our reach happened.
+ *  - prog_err(condition, msg, action);
+ *    To safely inform the user that an error is being taken care of.
+ */
 #define fatal_err(errno, status, msg, code); \
    if (errno == status) { \
       perror(msg); \
