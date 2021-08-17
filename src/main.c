@@ -35,11 +35,12 @@
 #include <pass/defs.h>
 #include <pass/storage.h>
 #include <pass/args.h>
+#include <pass/gen.h>
+
 #if defined(__experimental__)
 #  include <pass/term.h>
 #  include <pass/os.h>
 #  include <pass/crypto.h>
-#  include <pass/gen.h>
 #endif
 
 /* Just the main function */
@@ -164,7 +165,9 @@ int main(int argc, char **argv)
    free(secret);
    free(dcontent);
 
+#endif
 exit:
+#if defined(__experimental__)
    ifdef_free(home_dir);
    ifdef_free(real_hash);
    ifdef_free(new_hash);
@@ -177,6 +180,7 @@ exit:
    return EXIT_SUCCESS;
 }
 
+#if defined(__experimental__)
 int pw_init(const char *hash_file)
 {
    char *passwd = NULL, *verification_passwd = NULL;
@@ -249,35 +253,7 @@ const char *pw_crypt_read(const char *pwds_file)
    return NULL;
 }
 
-/* TODO:
- *  - Move this to its own file
- */
-/* Really basic way of creating a password */
-char *create_passwd(const size_t length, const int flags)
-{
-   /* TODO:
-    *  - secure_malloc;
-    *  - lock memory;
-    */
-   char *passwd = malloc(sizeof(char)*length+1);
-   size_t i=0;
-   srand(time(NULL));
-   
-   while(i<length) {
-      passwd[i] = rand()%94+33;
-      /* This if checks if the picked character is accepted or not */
-      if ((isdigit(passwd[i]) && flags&8) || (islower(passwd[i]) && flags&4)
-					  || (isupper(passwd[i]) && flags&2)
-					  || (ispunct(passwd[i]) && flags&1))
-         continue;
-      
-      i++;
-   }
-
-  passwd[i] = '\0';
-
-  return passwd;
-}
+#endif
 
 /* Just the help function */
 void help()

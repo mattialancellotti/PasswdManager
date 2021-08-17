@@ -38,10 +38,12 @@ typedef struct {
  */
 void help(void);
 
+#if defined(__experimental__)
 /* TODO:
  *  - doc;
  */
 int pw_init(const char* /*hash_file*/);
 char *pw_hash(const char* /*hash_file*/);
+#endif
 
 #endif
