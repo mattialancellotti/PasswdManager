@@ -230,11 +230,10 @@ char *pw_hash(const char *hash_file)
    if ((hash = os_fopen_rw(hash_file)) == NULL)
       goto hash_exit;
 
-   if (hash->file_content == NULL)
-      /* TODO:
-       *  - init the password
-       */
+   if (hash->file_content == NULL) {
+      fprintf(stdout, "No password found. Use ezPass --init to initialize one.");
       goto hash_exit;
+   }
 
    /* Saving the hash and destroying the hash file */
    actual_hash = strdup(hash->file_content);
@@ -257,7 +256,6 @@ const char *pw_crypt_read(const char *pwds_file)
       fprintf(stdout, "No passwords saved\n");
       return NULL;
    }
-
 
    return NULL;
 }
