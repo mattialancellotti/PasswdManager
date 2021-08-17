@@ -39,6 +39,7 @@
 #  include <pass/term.h>
 #  include <pass/os.h>
 #  include <pass/crypto.h>
+#  include <pass/gen.h>
 #endif
 
 /* Just the main function */
@@ -80,6 +81,8 @@ int main(int argc, char **argv)
 
    char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
       
+#endif
+
    /* 
     * This struct rapresent a configuration block with the properties of a
     * password. The generated password should follow those properties.
@@ -100,10 +103,13 @@ int main(int argc, char **argv)
    int success = handle_args(argc, argv, &config_file);
    switch (success) {
       case -1: goto exit;
+#if defined(__experimental__)
       case -2: pw_init(program_files[0]); goto exit;
+#endif
       default: break;
    }
 
+#if defined(__experimental__)
    /* Asking the password */
    printf("Insert the password: ");
    passwd = ask_pass();
@@ -135,28 +141,10 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
 
-   /* TODO: Temporary solution (Basically this is a namepsace) */
-   /* Generate */ {
-   /* Allocating the array of passwords */
-   char *passwords[config_file.times];
-
-   /* Creates the passwords, saves them and execute the check_passwd on them */
-   for (size_t i=0; i<config_file.times; i++) {
-      /* Creating the password */
-      passwords[i] = create_passwd(config_file.length, config_file.char_not_admitted);
-      printf("Password: %s%s%s\n", YELLOW, passwords[i], RESET);
-
-      free(passwords[i]);
-      /* Wait unless this is the last password */
-      if (config_file.times != i+1)
-         /*
-          * This is needed to create new seeds, without the sleep function all
-          * the passwords generated are going to be the same.
-          */
-	 sleep(1);
-   }
-
-   }
+   /* Temporary way of generating passwords */
+   /* TODO: Solve memory leak */
+   char **passwds = passwd_generator(&config_file);
+   printf("Password: %s\n", passwds[0]);
 
 #if defined(__experimental__)
    /* Trying crypto's encrypting functions */
@@ -174,6 +162,7 @@ int main(int argc, char **argv)
 
    printf("Original: %s\n", dcontent);
    free(secret);
+   free(dcontent);
 
 exit:
    ifdef_free(home_dir);

@@ -28,12 +28,6 @@ typedef struct {
             colors, profiles;
 } config_t;
 
-/*
- * This function creates a password of length `length`. Also  it accepts a
- * `flags` that indicates which of { 'u_char', 'l_char' ... } are not accepted
- */
-char *create_passwd(const size_t /*length*/, const int /*flags*/);
-
 /* 
  * Just prints out the help message.
  * It accepts an unsigned decimal that acts as a flag, if the second bit is 1

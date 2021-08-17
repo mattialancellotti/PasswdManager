@@ -5,7 +5,7 @@ SRCDIR = src
 
 VPATH = src:include
 OBJS := $(addprefix \
-       $(OBJSDIR)/, yaml_parser.o storage.o args.o main.o tree.o)
+       $(OBJSDIR)/, yaml_parser.o storage.o args.o main.o tree.o gen.o)
 DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
