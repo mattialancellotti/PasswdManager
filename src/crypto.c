@@ -42,8 +42,8 @@ int hash_check(const char *hash, const char *passwd)
 }
 
 /* TODO:
- *  - `crypto_write` to write a complete new encrypted file;
- *  - `crypto_append` to append new data to an encrypted file;
+ *  - `encrypt` to encrypt the content of a file;
+ *  - `decrypt` to decrypt the content of a file;
  */
 static unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
 static unsigned char *key;
