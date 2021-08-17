@@ -13,9 +13,14 @@
       return code; \
    }
 
-#define warn_user(errno, status, msg); \
-   if (errno == status) { \
+#define warn_user(condition, msg); \
+   if (condition) \
       fprintf(stderr, msg);
+
+#define exec_if(condition, action); \
+   if (condition) { \
+      action; \
+   }
 
 /* Use the same do_if/exit_if as the BrainFuck Interpreter */
 #define exit_eq(errno, status, code); \
