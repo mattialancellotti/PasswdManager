@@ -157,7 +157,24 @@ int main(int argc, char **argv)
    }
 
    }
+
 #if defined(__experimental__)
+   /* Trying crypto's encrypting functions */
+   const unsigned char *content = (unsigned char *)"contenuto cifrato";
+   const char *tmp  = "ciao";
+   unsigned char *secret = NULL;
+   unsigned char *dcontent = NULL;
+   if (encrypt_content(content, &secret, tmp) == -1)
+      perror("encrypt_content");
+
+   printf("Encrypted: %s\n", secret);
+
+   if (decrypt_content(secret, &dcontent, tmp) == -1)
+      perror("decrypt_content");
+
+   printf("Original: %s\n", dcontent);
+   free(secret);
+
 exit:
    ifdef_free(home_dir);
    ifdef_free(real_hash);
@@ -227,6 +244,22 @@ hash_exit:
    os_fclose(hash);
 
    return actual_hash;
+}
+
+const char *pw_crypt_read(const char *pwds_file)
+{
+   file_t *passwords;
+   if ((passwords = os_fopen_rw(pwds_file)) == NULL)
+      perror("os_fopen_rw");
+
+   /* Checking if there is any password saved */
+   if (passwords->file_content == NULL) {
+      fprintf(stdout, "No passwords saved\n");
+      return NULL;
+   }
+
+
+   return NULL;
 }
 
 /* TODO:

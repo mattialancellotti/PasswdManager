@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #define _XOPEN_SOURCE 500
 
 #include <stdio.h>
@@ -40,7 +41,15 @@ int hash_check(const char *hash, const char *passwd)
    return err;
 }
 
-int encrypt_content(const unsigned char *content, const char *passwd)
+/* TODO:
+ *  - `crypto_write` to write a complete new encrypted file;
+ *  - `crypto_append` to append new data to an encrypted file;
+ */
+static unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
+static unsigned char *key;
+
+int encrypt_content(const unsigned char *content, unsigned char **secret,
+                     const char *passwd)
 {
    /* Checking if the content is not empty */
    exit_eq(content, NULL, -1);
@@ -49,13 +58,12 @@ int encrypt_content(const unsigned char *content, const char *passwd)
    size_t clen = strlen((const char *)content);
    size_t plen = strlen(passwd);
 
-   unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
-   unsigned char *key = sodium_malloc(sizeof(unsigned char) *
-                                 crypto_aead_chacha20poly1305_KEYBYTES);
-   unsigned char ciphertext[clen + crypto_aead_chacha20poly1305_ABYTES];
+   unsigned char ciphertext[clen + crypto_aead_chacha20poly1305_ABYTES + 1];
    unsigned long long ciphertext_len;
 
    /* Initiating encryption */
+   key = sodium_malloc(sizeof(unsigned char *) *
+                        crypto_aead_chacha20poly1305_KEYBYTES);
    crypto_aead_chacha20poly1305_keygen(key);
    randombytes_buf(nonce, sizeof(nonce));
    key = memcpy(key, passwd, plen);
@@ -65,5 +73,48 @@ int encrypt_content(const unsigned char *content, const char *passwd)
       crypto_aead_chacha20poly1305_encrypt(ciphertext, &ciphertext_len,
                                              content, clen, NULL, 0, NULL,
                                              nonce, key);
+
+   /* TODO:
+    *  - Allows only NULL pointers as secret
+    */
+   *secret = (unsigned char *)strdup((const char *)ciphertext);
+
+   /* TODO:
+    *  - Write down the encrypted content;
+    */
+   return chacha20out;
+}
+
+int decrypt_content(const unsigned char *secret,
+                     unsigned char **content, const char *passwd)
+{
+   /* Checking parameters */
+   exit_eq(secret, NULL, -1);
+   exit_eq(passwd, NULL, -1);
+
+   /* Defining some usefull parameters */
+   size_t plen = strlen(passwd);
+   unsigned long long secret_len = strlen((const char *)secret);
+   unsigned char cleartext[secret_len - crypto_aead_chacha20poly1305_ABYTES + 1];
+   unsigned long long cleartext_len;
+   /*
+   unsigned char nonce[crypto_aead_chacha20poly1305_NPUBBYTES];
+   unsigned char *key = sodium_malloc(sizeof(unsigned char) *
+                                    crypto_aead_chacha20poly1305_KEYBYTES);
+   */
+
+   /* Initializing stuff */
+   /*
+   crypto_aead_chacha20poly1305_keygen(key);
+   randombytes_buf(nonce, sizeof(nonce));
+   key = memcpy(key, passwd, plen);
+   */
+
+   int chacha20out =
+      crypto_aead_chacha20poly1305_decrypt(cleartext, &cleartext_len, NULL,
+                                             secret, secret_len, NULL, 0,
+                                             nonce, key);
+
+   *content = (unsigned char *)strndup((const char *)cleartext, cleartext_len);
    return chacha20out;
 }
