@@ -37,12 +37,11 @@ file_t *os_fopen_rw(const char *f_name)
    /* Defining file infors like its descriptor and all the other information */
    struct stat f_infos;
    char *content = NULL;
-   file_t *ofile = NULL;
    int fd, st;
 
    /* open() is a POSIX syscall. Take a look at open(2) in the man pages */
    /* TODO:
-    *  - Might wanna add those  flags mentioned in the init_io function;
+    *  - Might wanna add those flags mentioned in the init_io function;
     */
    fd = open(f_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
    fatal_err(fd, -1, "open", NULL);
@@ -52,33 +51,16 @@ file_t *os_fopen_rw(const char *f_name)
    fatal_err(st, -1, "fstat", NULL);
 
    /* Checking if the file is new/empty */
-   if (f_infos.st_size == 0) {
-      /* Definin the new file */
-      ofile = file_t_malloc(content, fd);
-
-      return ofile;
-   }
+   if (f_infos.st_size == 0)
+      return file_t_malloc(content, fd);
 
    /* Mapping the file */
-   /* TODO:
-    *  - Close file descriptor before exiting;
-    */
    content = mmap(NULL, f_infos.st_size,
                   PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
    fatal_err(content, MAP_FAILED, "mmap", NULL);
 
-   /* Definin the new file */
-   ofile = malloc(sizeof(file_t));
-   ofile->file_content = content;
-   ofile->fd = fd;
-
-   /*
-   exec_if((fd != -1), 
-         warn_user((close(fd) == -1), "Couldn't close the file"));
-         */
-
    /* Returning a pointer to the file */
-   return ofile;
+   return file_t_malloc(content, fd);
 }
 
 int os_fwrite(int fd, const char *content)
