@@ -15,7 +15,7 @@
 typedef struct {
    size_t length, times;
    unsigned char_not_admitted;
-} passwd_conf_t;
+} service_t;
 
 /* This struct represent settings.yml */
 /* TODO:

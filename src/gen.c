@@ -18,7 +18,7 @@ static char *create_passwd(const size_t /*length*/, const int /*flags*/);
  *  - Secure malloc;
  *  - Lock memory;
  */
-char **passwd_generator(passwd_conf_t *passwd_conf)
+char **passwd_generator(service_t *passwd_conf)
 {
    size_t passwd_length = passwd_conf->length;
    size_t passwd_times  = passwd_conf->times;

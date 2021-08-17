@@ -47,7 +47,7 @@ static const struct option options[] = {
 
 #define SET_BIT(bitarr, bitpos) ((bitarr) |= (bitpos))
 int handle_args(const int argc, char **argv,
-      passwd_conf_t * const restrict config_file)
+      service_t * const restrict config_file)
 {
    size_t length = DEFAULT_PASSWD_SIZE, times = 1;
    int option_index = 0, c, success = 0;

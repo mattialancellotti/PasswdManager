@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     *
     * It has default options useful to the `handle_args` function.
     */
-   passwd_conf_t config_file = { 
+   service_t config_file = { 
       .length = DEFAULT_PASSWD_SIZE,
       /* Temporarily disabled */
       .times  = 1,

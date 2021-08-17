@@ -21,6 +21,6 @@
  * `handle_args` can avoid predicting bad things.
  */
 int handle_args(const int argc, char** /*argv*/, 
-                  passwd_conf_t * const restrict /*config_file*/);
+                  service_t * const restrict /*config_file*/);
 
 #endif
