@@ -77,7 +77,7 @@ int encrypt_content(const unsigned char *content, unsigned char **secret,
    /* TODO:
     *  - Allows only NULL pointers as secret
     */
-   *secret = (unsigned char *)strdup((const char *)ciphertext);
+   *secret = (unsigned char *)strndup((const char *)ciphertext, ciphertext_len);
 
    /* TODO:
     *  - Write down the encrypted content;
