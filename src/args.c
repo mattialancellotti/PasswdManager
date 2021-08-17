@@ -82,7 +82,7 @@ int handle_args(const int argc, char **argv,
       case 'n':
          /* Uses `get_flags(..)` to get an unsigned flag of banned characters */
 	 config_file->char_not_admitted = get_flags(optarg);
-         if (config_file->char_not_admitted & 15) {
+         if (config_file->char_not_admitted == 15) {
             fprintf(stderr, "Fatal: can't accept all types as argument\n");
             return -1;
          }
