@@ -1,21 +1,29 @@
 INCLUDE = include
-BINARY = ezPass
-OBJSDIR = bin
+BINARY = ezpass
+OBJSDIR = obj
+BINDIR = bin
 SRCDIR = src
+STOWDIR = /usr/local/stow/ezpass
 
 VPATH = src:include
 OBJS := $(addprefix \
-       $(OBJSDIR)/, yaml_parser.o storage.o args.o main.o tree.o gen.o)
+       $(OBJSDIR)/, args.o main.o tree.o gen.o)
 DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
 RM = rm -rf
 CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
-LDLIBS = -lm -lyaml
+LDLIBS = -lm
+
+ifdef DEPRECATED
+  OBJS += $(addprefix $(OBJSDIR)/, storage.o yaml_parser.o)
+  CFLAGS += -D_HAVE_DEPRECATED
+  LDLIBS += -lyaml
+endif
 
 ifdef EXPERIMENTAL
   OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o)
-  CFLAGS += -D__experimental__
+  CFLAGS += -D_IS_EXPERIMENTAL
 endif
 
 ifdef SODIUM
@@ -29,8 +37,12 @@ endif
 
 
 # Actually linking everything into a single binary
-$(BINARY): | $(OBJSDIR) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(BINARY) $(LDLIBS)
+$(BINARY): | $(OBJSDIR) $(OBJS) $(BINDIR)
+	$(CC) $(CFLAGS) $(OBJS) -o $(BINDIR)/$(BINARY) $(LDLIBS)
+
+$(BINDIR):
+	@echo Creating $(abspath $(BINDIR)).
+	@mkdir -p $(BINDIR)
 
 $(OBJSDIR):
 	@echo Creating $(abspath $(OBJSDIR)).
@@ -43,6 +55,12 @@ $(SRCDIR)/%.d: $(SRCDIR)/%.c
 $(OBJSDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.d $(INCLUDE)/pass/%.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-.PHONY: clean
+.PHONY: clean stow
 clean:
-	$(RM) $(BINARY) $(OBJSDIR)
+	$(RM) $(BINDIR) $(OBJSDIR)
+
+stow:
+	@mkdir -p $(STOWDIR)
+	@cp -r $(BINDIR) $(STOWDIR)
+	@stow --dir=/usr/local/stow --target=/usr/local/bin --stow $(BINARY)
+	@echo Successfully stowed $(STOWDIR).

@@ -33,11 +33,14 @@
 #endif
 
 #include <pass/defs.h>
-#include <pass/storage.h>
 #include <pass/args.h>
 #include <pass/gen.h>
 
-#if defined(__experimental__)
+#if defined(_HAVE_DEPRECATED)
+#  include <pass/storage.h>
+#endif
+
+#if defined(_IS_EXPERIMENTAL)
 #  include <pass/term.h>
 #  include <pass/os.h>
 #  include <pass/crypto.h>
@@ -59,7 +62,7 @@ int main(int argc, char **argv)
    }
 #endif
 
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
    /*
     * TODO
     *    Ask for a password key to decrpyt files.
@@ -104,13 +107,13 @@ int main(int argc, char **argv)
    int success = handle_args(argc, argv, &config_file);
    switch (success) {
       case -1: goto exit;
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
       case -2: pw_init(program_files[0]); goto exit;
 #endif
       default: break;
    }
 
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
    /* Asking the password */
    printf("Insert the password: ");
    passwd = ask_pass();
@@ -147,7 +150,7 @@ int main(int argc, char **argv)
    char **passwds = passwd_generator(&config_file);
    printf("Password: %s\n", passwds[0]);
 
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
    /* Trying crypto's encrypting functions */
    const unsigned char *content = (unsigned char *)"contenuto cifrato";
    const char *tmp  = "ciao";
@@ -167,7 +170,7 @@ int main(int argc, char **argv)
 
 #endif
 exit:
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
    ifdef_free(home_dir);
    ifdef_free(real_hash);
    ifdef_free(new_hash);
@@ -180,7 +183,7 @@ exit:
    return EXIT_SUCCESS;
 }
 
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
 int pw_init(const char *hash_file)
 {
    char *passwd = NULL, *verification_passwd = NULL;

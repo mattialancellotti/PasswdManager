@@ -2,4 +2,5 @@
 run.c
 a.out
 *.o
-ezPass
+obj
+bin

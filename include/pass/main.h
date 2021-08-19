@@ -38,7 +38,7 @@ typedef struct {
  */
 void help(void);
 
-#if defined(__experimental__)
+#if defined(_IS_EXPERIMENTAL)
 /* TODO:
  *  - doc;
  */
