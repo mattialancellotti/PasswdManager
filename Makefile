@@ -1,22 +1,21 @@
 INCLUDE = include
 BINARY = ezpass
+
 OBJSDIR = obj
-BINDIR = bin
-SRCDIR = src
+BINDIR  = bin
+SRCDIR  = src
 STOWDIR = /usr/local/stow/ezpass
 
 VPATH = src:include
-OBJS := $(addprefix \
-       $(OBJSDIR)/, args.o main.o tree.o gen.o)
+OBJS := $(addprefix $(OBJSDIR)/, args.o main.o gen.o)
 DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
 RM = rm -rf
 CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
-LDLIBS = -lm
 
 ifdef DEPRECATED
-  OBJS += $(addprefix $(OBJSDIR)/, storage.o yaml_parser.o)
+  OBJS += $(addprefix $(OBJSDIR)/, storage.o yaml_parser.o tree.o)
   CFLAGS += -D_HAVE_DEPRECATED
   LDLIBS += -lyaml
 endif
@@ -60,7 +59,7 @@ clean:
 	$(RM) $(BINDIR) $(OBJSDIR)
 
 stow:
-	@mkdir -p $(STOWDIR)
-	@cp -r $(BINDIR) $(STOWDIR)
-	@stow --dir=/usr/local/stow --target=/usr/local/bin --stow $(BINARY)
+	mkdir -p $(STOWDIR)
+	cp -r $(BINDIR) $(STOWDIR)
+	stow --dir=/usr/local/stow --target=/usr/local --stow $(BINARY)
 	@echo Successfully stowed $(STOWDIR).
