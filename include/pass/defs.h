@@ -1,6 +1,15 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define INIT 00001000
+#define STAT 00000100
+#define HELP 00000010
+#define VERS 00000001
+
+#define emptyness(bitarr, bitcount) ((bitarr >> bitcount) == 0)
+#define check_bit(bitarr, bitpos) (bitarr & bitpos)
+#define set_bit(bitarr, bitpos) (bitarr |= bitpos)
+
 #define ifdef_free(var); \
    if (var != NULL) { \
       free(var);  \

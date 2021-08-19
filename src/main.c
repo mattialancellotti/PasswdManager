@@ -24,6 +24,8 @@
 #include <ctype.h>
 #include <string.h>
 
+#define VERSION 0.2
+
 #if defined(_HAVE_SODIUM)
 #  include <sodium.h>
 #endif
@@ -71,6 +73,10 @@ int main(int argc, char **argv)
     */
 
    /* Important paths */
+   /* TODO:
+    *  - Move all this stuff to a separate function that will return the
+    *    array
+    */
    char *home_dir = users_path();
    char *local_passwd_hash = "/.local/share/ezPass/passwd";
    char *local_passwd_db   = "/.local/share/ezPass/passwds";
@@ -94,23 +100,40 @@ int main(int argc, char **argv)
     * It has default options useful to the `handle_args` function.
     */
    service_t config_file = { 
+      .service_name = NULL,
       .length = DEFAULT_PASSWD_SIZE,
-      /* Temporarily disabled */
       .times  = 1,
       .char_not_admitted = 0,
    };
 
-   /* Checking for errors and then tries to exit the right way */
    /* TODO:
     *  - Create a list of errors (take a look at the OSH project);
+    *  - This piece of code produces memory leak if _IS_EXPERIMENTAL is enabled.
     */
+   /* Handling arguments */
    int success = handle_args(argc, argv, &config_file);
-   switch (success) {
-      case -1: goto exit;
+   if (success == -1)
+      goto exit;
+   else if (check_bit(success, (HELP|VERS))) {
+      /* Checking which function needs to be called */
+      if (check_bit(success, HELP))
+         (void) help();
+      if (check_bit(success, VERS))
+         printf("Version: %.1f\n", VERSION);
+      
+      /* All other actions are ignored in this case */
+      return EXIT_SUCCESS;
+   } else if (check_bit(success, INIT)) {
+      /* TODO:
+       *  - Check if the user will lose any data;
+       *  - Ask a password to do that;
+       */
 #if defined(_IS_EXPERIMENTAL)
-      case -2: pw_init(program_files[0]); goto exit;
+      pw_init(program_files[0]);
+      goto exit;
+#else
+      ;
 #endif
-      default: break;
    }
 
 #if defined(_IS_EXPERIMENTAL)
@@ -133,17 +156,6 @@ int main(int argc, char **argv)
    }
 
 #endif
-
-   /* Checking if the user wants to see the help message and the version */
-#define VERSION 0.2
-   if (success & 2)
-      printf("Version: %.1f\n", VERSION);
-
-   if (success & 1) {
-      /* This piece of code is ugly as fuck */
-      (void) help();
-      return EXIT_SUCCESS;
-   }
 
    /* Temporary way of generating passwords */
    /* TODO: Solve memory leak */

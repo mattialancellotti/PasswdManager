@@ -5,6 +5,7 @@
 #include <string.h>
 #include <getopt.h>
 
+#include <pass/defs.h>
 #include <pass/args.h>
 
 /* 
@@ -14,7 +15,7 @@
 static int get_flags(char* /*str*/);
 
 /* options flags */
-static int fh = 0, fp = 0, fv = 0, fi = 0;
+static int use = 0, vers = 0, stat = 0, init = 0;
 
 /*
  * Declaring arguments.
@@ -34,20 +35,17 @@ static int fh = 0, fp = 0, fv = 0, fi = 0;
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
-   /* TODO: Implement id arg */
-   {"id",           required_argument, 0, 'i'},
+   {"service",      required_argument, 0, 's'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
-   {"init",         no_argument,      &fi, 4 },
-   {"stats",        no_argument,      &fp, 3 },
-   {"help",         no_argument,      &fh, 1 },
-   {"version",      no_argument,      &fv, 2 },
-   {0,              0,                 0,  0 }
+   {"init",         no_argument,      &init, INIT },
+   {"stats",        no_argument,      &stat, STAT },
+   {"help",         no_argument,      &use,  HELP },
+   {"version",      no_argument,      &vers, VERS },
+   {0,              0,                 0,       0 }
 };
 
-#define SET_BIT(bitarr, bitpos) ((bitarr) |= (bitpos))
-int handle_args(const int argc, char **argv,
-      service_t * const restrict config_file)
+int handle_args(const int argc, char **argv, service_t * const config_file)
 {
    size_t length = DEFAULT_PASSWD_SIZE, times = 1;
    int option_index = 0, c, success = 0;
@@ -58,10 +56,6 @@ int handle_args(const int argc, char **argv,
       if (c == -1)
          break;
 
-      /* The `--init` argument is the only one considered if present */
-      if (fi)
-         return -2;
-
       switch (c) {
       case 0:
          /* Found but should not handle it */
@@ -69,7 +63,8 @@ int handle_args(const int argc, char **argv,
       case '?':
          /* Unsuccessfull matching */
          return -1;
-      case 'i':
+      case 's':
+         config_file->service_name = optarg;
          break;
       case 'l':
          /* Sets the length of the password */
@@ -101,9 +96,12 @@ int handle_args(const int argc, char **argv,
    }
 
    /* Returns successfully */
-   SET_BIT(success, fp);
-   SET_BIT(success, fh);
-   SET_BIT(success, fv);
+   set_bit(success, init);
+   set_bit(success, stat);
+
+   /* These two have the priority over the previous ones */
+   if (use || vers)
+      set_bit(success, ((success & ~success) | (use | vers)));
 
    return success;
 }
@@ -121,13 +119,13 @@ static int get_flags(char *str)
     */
    while ((token = strtok_r(str, ",", &str)) && i < MAX_NOT_ADMITTED_STR_NUM) {
       if (!strcmp(token, "digit"))
-	 SET_BIT(flags, 8);
+	 set_bit(flags, 8);
       else if (!strcmp(token, "l_char"))
-	 SET_BIT(flags, 4);
+	 set_bit(flags, 4);
       else if (!strcmp(token, "u_char"))
-	 SET_BIT(flags, 2);
+	 set_bit(flags, 2);
       else if (!strcmp(token, "sign"))
-	 SET_BIT(flags, 1);
+	 set_bit(flags, 1);
       else
          /* 
           * Returning 0 so we don't have to worry about checking stuff, it just

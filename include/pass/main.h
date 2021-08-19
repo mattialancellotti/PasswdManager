@@ -13,6 +13,7 @@
  *  - Rename to service_t (just more sense);
  */
 typedef struct {
+   char *service_name;
    size_t length, times;
    unsigned char_not_admitted;
 } service_t;

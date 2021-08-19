@@ -20,7 +20,7 @@
  * Also `config_file` should be defined with default options in mind. This way
  * `handle_args` can avoid predicting bad things.
  */
-int handle_args(const int argc, char** /*argv*/, 
-                  service_t * const restrict /*config_file*/);
+int handle_args(const int /*argc*/, char** /*argv*/,
+                  service_t * const /*config_file*/);
 
 #endif
