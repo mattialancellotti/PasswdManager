@@ -14,12 +14,6 @@ CC = clang
 RM = rm -rf
 CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
 
-ifdef DEPRECATED
-  OBJS += $(addprefix $(OBJSDIR)/, storage.o yaml_parser.o tree.o)
-  CFLAGS += -D_HAVE_DEPRECATED
-  LDLIBS += -lyaml
-endif
-
 ifdef EXPERIMENTAL
   OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o)
   CFLAGS += -D_IS_EXPERIMENTAL

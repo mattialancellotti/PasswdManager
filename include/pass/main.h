@@ -18,19 +18,6 @@ typedef struct {
    unsigned char_not_admitted;
 } service_t;
 
-/* This struct represent settings.yml */
-/* TODO:
- *  - Delete this thing;
- */
-#if defined(_IS_EXPERIMENTAL)
-typedef struct {
-   char *passwds_file;
-   unsigned max_l, min_l;
-   unsigned accept_same_password,
-            colors, profiles;
-} config_t;
-#endif
-
 /* 
  * Just prints out the help message.
  * It accepts an unsigned decimal that acts as a flag, if the second bit is 1

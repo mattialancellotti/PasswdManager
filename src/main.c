@@ -38,10 +38,6 @@
 #include <pass/args.h>
 #include <pass/gen.h>
 
-#if defined(_HAVE_DEPRECATED)
-#  include <pass/storage.h>
-#endif
-
 #if defined(_IS_EXPERIMENTAL)
 #  include <pass/term.h>
 #  include <pass/os.h>
