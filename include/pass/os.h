@@ -15,8 +15,12 @@ typedef struct {
  */
 char *users_path(void);
 
+char *absolute_path(const char* /*file_name*/);
+
 /* TODO:
+ *  - `os_fopen_rw` is not capable of creating directories;
  *  - doc
+ *  - name
  */
 file_t *os_fopen_rw(const char* /*f_name*/);
 int os_fwrite(const int /*fd*/, const char* /*content*/);

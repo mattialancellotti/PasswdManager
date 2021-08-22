@@ -29,6 +29,22 @@ char *users_path(void)
    return home_dir;
 }
 
+char *absolute_path(const char *file_name)
+{
+   /* Getting the user's home directory */
+   char *home_dir = users_path();
+
+   /* Creating the complete path */
+   char *abs_path = malloc(strlen(home_dir) + strlen(file_name) + 1);
+   abs_path = strcat(strcpy(abs_path, home_dir), file_name);
+
+   /* Freeing what's needed to be freed */
+   ifdef_free(home_dir);
+
+   /* This needs to be freed */
+   return abs_path;
+}
+
 file_t *os_fopen_rw(const char *f_name)
 {
    /* Checking the file's name */
