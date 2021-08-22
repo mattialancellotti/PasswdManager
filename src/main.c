@@ -15,7 +15,6 @@
  *    # Features
  *    - Encrypts those passwords with sodium/libgcrypt.
  *    - Default action will be to print help message.
- *    - Save passwords in an XML encrypted file.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,13 +41,17 @@
 #  include <pass/pwman.h>
 #endif
 
+#define ROOT_PATH ".local/share/ezpass/"
+#define PASS_HASH "passwd"
+#define PASS_DB   "db/"
+
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
 
 /* Important paths */
 static const char *program_files[2] = {
-   "/.local/share/ezpass/passwd",
-   "/.local/share/ezpass/db/"
+   ".local/share/ezpass/passwd",
+   ".local/share/ezpass/db/"
 };
 
 /* Just the main function */
@@ -68,7 +71,12 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
-   char *program_hash = absolute_path(program_files[0]);
+   char *program_root = absolute_path(ROOT_PATH);
+   char *program_hash = absolute_path(ROOT_PATH PASS_HASH);
+   char *program_db   = absolute_path(ROOT_PATH PASS_DB);
+
+   /* TEST */
+   mkpath(PASS_DB, program_root);
 #endif
 
    /* 
@@ -129,6 +137,8 @@ int main(int argc, char **argv)
 exit:
 #if defined(_IS_EXPERIMENTAL)
    ifdef_free(program_hash);
+   ifdef_free(program_root);
+   ifdef_free(program_db);
 #endif
 
    /* TODO:
