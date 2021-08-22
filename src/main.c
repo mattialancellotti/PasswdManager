@@ -73,24 +73,15 @@ int main(int argc, char **argv)
     */
 
    /* Important paths */
-   /* TODO:
-    *  - Move all this stuff to a separate function that will return the
-    *    array
-    */
-   char *home_dir = users_path();
-   char *local_passwd_hash = "/.local/share/ezPass/passwd";
-   char *local_passwd_db   = "/.local/share/ezPass/passwds";
-
-   /* Creating an array of config/saving files */
-   char passwd_hash_file[strlen(home_dir) + strlen(local_passwd_hash) + 1];
-   char passwd_db_file[strlen(home_dir)   + strlen(local_passwd_db)   + 1];
-   char *program_files[2] = {
-      strcat(strcpy(passwd_hash_file, home_dir), local_passwd_hash),
-      strcat(strcpy(passwd_db_file, home_dir),   local_passwd_db)
+   const char *program_files[2] = {
+      "/.local/share/ezpass/passwd",
+      "/.local/share/ezpass/db/"
    };
 
+   char *program_hash = absolute_path(program_files[0]);
+
    char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
-      
+
 #endif
 
    /* 
@@ -129,7 +120,7 @@ int main(int argc, char **argv)
        *  - Ask a password to do that;
        */
 #if defined(_IS_EXPERIMENTAL)
-      pw_init(program_files[0]);
+      pw_init(program_hash);
       goto exit;
 #else
       ;
@@ -143,7 +134,7 @@ int main(int argc, char **argv)
    printf("\n");
 
    /* Getting the actual hash from the file */
-   real_hash = pw_hash(program_files[0]);
+   real_hash = pw_hash(program_hash);
    if (real_hash == NULL) {
       fprintf(stderr, "User ezPass --init\n");
       goto exit;
@@ -183,7 +174,7 @@ int main(int argc, char **argv)
 #endif
 exit:
 #if defined(_IS_EXPERIMENTAL)
-   ifdef_free(home_dir);
+   ifdef_free(program_hash);
    ifdef_free(real_hash);
    ifdef_free(new_hash);
    ifdef_free(passwd);

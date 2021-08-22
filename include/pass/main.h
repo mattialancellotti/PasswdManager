@@ -22,12 +22,14 @@ typedef struct {
 /* TODO:
  *  - Delete this thing;
  */
+#if defined(_IS_EXPERIMENTAL)
 typedef struct {
    char *passwds_file;
    unsigned max_l, min_l;
    unsigned accept_same_password,
             colors, profiles;
 } config_t;
+#endif
 
 /* 
  * Just prints out the help message.
@@ -45,6 +47,7 @@ void help(void);
  */
 int pw_init(const char* /*hash_file*/);
 char *pw_hash(const char* /*hash_file*/);
+
 #endif
 
 #endif
