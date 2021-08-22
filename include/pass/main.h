@@ -44,9 +44,10 @@ void help(void);
 #if defined(_IS_EXPERIMENTAL)
 /* TODO:
  *  - doc;
+ *  - name;
  */
-int pw_init(const char* /*hash_file*/);
-char *pw_hash(const char* /*hash_file*/);
+int pm_init(const char* /*hash_file*/);
+char *pm_hash(const char* /*hash_file*/);
 
 #endif
 

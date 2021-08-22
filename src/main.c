@@ -79,9 +79,6 @@ int main(int argc, char **argv)
    };
 
    char *program_hash = absolute_path(program_files[0]);
-
-   char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
-
 #endif
 
    /* 
@@ -120,21 +117,25 @@ int main(int argc, char **argv)
        *  - Ask the previous password to do that;
        */
 #if defined(_IS_EXPERIMENTAL)
-      pw_init(program_hash);
-      goto exit;
+      pm_init(program_hash);
+      free(program_hash);
+
+      return EXIT_SUCCESS;
 #else
       ;
 #endif
    }
 
 #if defined(_IS_EXPERIMENTAL)
+   char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
+
    /* Asking the password */
    printf("Insert the password: ");
    passwd = ask_pass();
    printf("\n");
 
    /* Getting the actual hash from the file */
-   real_hash = pw_hash(program_hash);
+   real_hash = pm_hash(program_hash);
    if (real_hash == NULL) {
       fprintf(stderr, "User ezPass --init\n");
       goto exit;
@@ -168,7 +169,7 @@ exit:
 }
 
 #if defined(_IS_EXPERIMENTAL)
-int pw_init(const char *hash_file)
+int pm_init(const char *hash_file)
 {
    char *passwd = NULL, *verification_passwd = NULL;
    char *hash;
@@ -189,7 +190,7 @@ int pw_init(const char *hash_file)
 
    /* Writing the hash password to the file */
    /* TODO:
-    *  - Checking;
+    *  - file->fd could be null;
     */
    file_t *file = os_fopen_rw(hash_file);
    int werr = os_fwrite(file->fd, hash);
@@ -202,7 +203,7 @@ int pw_init(const char *hash_file)
    return 0;
 }
 
-char *pw_hash(const char *hash_file)
+char *pm_hash(const char *hash_file)
 {
    /* Trying to read hash file */
    char *actual_hash = NULL;
