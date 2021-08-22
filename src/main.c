@@ -19,9 +19,6 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
-#include <ctype.h>
 #include <string.h>
 
 #define VERSION 0.2
@@ -42,7 +39,17 @@
 #  include <pass/term.h>
 #  include <pass/os.h>
 #  include <pass/crypto.h>
+#  include <pass/pwman.h>
 #endif
+
+/* TODO: doc */
+static int confirm_identity(const char* /*program_hash*/);
+
+/* Important paths */
+static const char *program_files[2] = {
+   "/.local/share/ezpass/passwd",
+   "/.local/share/ezpass/db/"
+};
 
 /* Just the main function */
 int main(int argc, char **argv)
@@ -61,19 +68,6 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
-   /*
-    * TODO
-    *    Ask for a password key to decrpyt files.
-    *    This is to be done here so that there won't be any kind of useless load
-    *    if the user enters the wrong password.
-    */
-
-   /* Important paths */
-   const char *program_files[2] = {
-      "/.local/share/ezpass/passwd",
-      "/.local/share/ezpass/db/"
-   };
-
    char *program_hash = absolute_path(program_files[0]);
 #endif
 
@@ -123,26 +117,8 @@ int main(int argc, char **argv)
    }
 
 #if defined(_IS_EXPERIMENTAL)
-   char *passwd = NULL, *real_hash = NULL, *new_hash = NULL;
-
-   /* Asking the password */
-   printf("Insert the password: ");
-   passwd = ask_pass();
-   printf("\n");
-
-   /* Getting the actual hash from the file */
-   real_hash = pm_hash(program_hash);
-   if (real_hash == NULL) {
-      fprintf(stderr, "User ezPass --init\n");
-      goto exit;
-   }
-
-   /* Checking the password */
-   if (hash_check(real_hash, passwd) == -1) {
-      fprintf(stderr, "Wrong password\n");
-      goto exit;
-   }
-
+   if (confirm_identity(program_hash))
+      return EXIT_FAILURE;
 #endif
 
    /* Temporary way of generating passwords */
@@ -153,9 +129,6 @@ int main(int argc, char **argv)
 exit:
 #if defined(_IS_EXPERIMENTAL)
    ifdef_free(program_hash);
-   ifdef_free(real_hash);
-   ifdef_free(new_hash);
-   ifdef_free(passwd);
 #endif
 
    /* TODO:
@@ -163,81 +136,6 @@ exit:
     */
    return EXIT_SUCCESS;
 }
-
-#if defined(_IS_EXPERIMENTAL)
-int pm_init(const char *hash_file)
-{
-   char *passwd = NULL, *verification_passwd = NULL;
-   char *hash;
-
-   /* Asking the password */
-   printf("Insert a password: ");
-   passwd = ask_pass();
-
-   printf("\nInsert the password again: ");
-   verification_passwd = ask_pass();
-
-   /* The passwords are not the same */
-   if (strcmp(passwd, verification_passwd))
-      return -1;
-
-   /* Creating the hash */
-   hash = hash_password(passwd);
-
-   /* Writing the hash password to the file */
-   /* TODO:
-    *  - file->fd could be null;
-    */
-   file_t *file = os_fopen_rw(hash_file);
-   int werr = os_fwrite(file->fd, hash);
-   int cerr = os_fclose(file);
-
-   free(passwd);
-   free(verification_passwd);
-   free(hash);
-
-   return 0;
-}
-
-char *pm_hash(const char *hash_file)
-{
-   /* Trying to read hash file */
-   char *actual_hash = NULL;
-   file_t *hash;
-   if ((hash = os_fopen_rw(hash_file)) == NULL)
-      goto hash_exit;
-
-   if (hash->file_content == NULL) {
-      fprintf(stdout, "No password found. Use ezPass --init to initialize one.");
-      goto hash_exit;
-   }
-
-   /* Saving the hash and destroying the hash file */
-   actual_hash = strdup(hash->file_content);
-
-hash_exit:
-   /* Freeing the memory */
-   os_fclose(hash);
-
-   return actual_hash;
-}
-
-const char *pw_crypt_read(const char *pwds_file)
-{
-   file_t *passwords;
-   if ((passwords = os_fopen_rw(pwds_file)) == NULL)
-      perror("os_fopen_rw");
-
-   /* Checking if there is any password saved */
-   if (passwords->file_content == NULL) {
-      fprintf(stdout, "No passwords saved\n");
-      return NULL;
-   }
-
-   return NULL;
-}
-
-#endif
 
 /* Just the help function */
 void help()
@@ -251,4 +149,37 @@ void help()
    printf("\t    --stats       : to print the stats\n"  );
    printf("\t    --help        : to show this message\n");
    printf("\t    --version     : to print the current version of the program\n");
+}
+
+static int confirm_identity(const char *program_hash)
+{
+   char *passwd = NULL;
+   char *real_hash = NULL;
+
+   /* Asking the password */
+   printf("Insert the password: ");
+   passwd = ask_pass();
+   printf("\n");
+
+   /* Getting the actual hash from the file */
+   real_hash = pm_hash(program_hash);
+   if (real_hash == NULL) {
+      fprintf(stderr, "User ezpass --init\n");
+
+      free(passwd);
+      return -1;
+   }
+
+   /* Checking the password */
+   if (hash_check(real_hash, passwd) == -1) {
+      fprintf(stderr, "Wrong password\n");
+
+      free(real_hash);
+      free(passwd);
+      return -1;
+   }
+
+   free(passwd);
+   free(real_hash);
+   return 0;
 }

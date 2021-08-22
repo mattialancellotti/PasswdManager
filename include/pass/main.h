@@ -9,9 +9,6 @@
 
 #define DEFAULT_PASSWD_SIZE 8
 
-/* TODO:
- *  - Rename to service_t (just more sense);
- */
 typedef struct {
    char *service_name;
    size_t length, times;
@@ -27,15 +24,5 @@ typedef struct {
  *  - Maybe _Noreturn?
  */
 void help(void);
-
-#if defined(_IS_EXPERIMENTAL)
-/* TODO:
- *  - doc;
- *  - name;
- */
-int pm_init(const char* /*hash_file*/);
-char *pm_hash(const char* /*hash_file*/);
-
-#endif
 
 #endif
