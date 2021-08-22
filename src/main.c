@@ -117,7 +117,7 @@ int main(int argc, char **argv)
    } else if (check_bit(success, INIT)) {
       /* TODO:
        *  - Check if the user will lose any data;
-       *  - Ask a password to do that;
+       *  - Ask the previous password to do that;
        */
 #if defined(_IS_EXPERIMENTAL)
       pw_init(program_hash);
@@ -153,25 +153,6 @@ int main(int argc, char **argv)
    char **passwds = passwd_generator(&config_file);
    printf("Password: %s\n", passwds[0]);
 
-#if defined(_IS_EXPERIMENTAL)
-   /* Trying crypto's encrypting functions */
-   const unsigned char *content = (unsigned char *)"contenuto cifrato";
-   const char *tmp  = "ciao";
-   unsigned char *secret = NULL;
-   unsigned char *dcontent = NULL;
-   if (encrypt_content(content, &secret, tmp) == -1)
-      perror("encrypt_content");
-
-   printf("Encrypted: %s\n", secret);
-
-   if (decrypt_content(secret, &dcontent, tmp) == -1)
-      perror("decrypt_content");
-
-   printf("Original: %s\n", dcontent);
-   free(secret);
-   free(dcontent);
-
-#endif
 exit:
 #if defined(_IS_EXPERIMENTAL)
    ifdef_free(program_hash);
