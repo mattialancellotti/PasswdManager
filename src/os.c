@@ -23,7 +23,10 @@ char *users_path(void)
    exit_eq(user_info, NULL, NULL);
 
    /* Saving the home directory of the current user */
-   char *home_dir = strdup(user_info->pw_dir);
+   char *home_dir = malloc(strlen(user_info->pw_dir) + 2);
+   home_dir = strcpy(home_dir, user_info->pw_dir);
+   home_dir = strcat(home_dir, "/");
+
 
    /* Returning the home_dir variable */
    return home_dir;
