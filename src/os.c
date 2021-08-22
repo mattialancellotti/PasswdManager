@@ -27,7 +27,6 @@ char *users_path(void)
    home_dir = strcpy(home_dir, user_info->pw_dir);
    home_dir = strcat(home_dir, "/");
 
-
    /* Returning the home_dir variable */
    return home_dir;
 }
@@ -42,10 +41,37 @@ char *absolute_path(const char *file_name)
    abs_path = strcat(strcpy(abs_path, home_dir), file_name);
 
    /* Freeing what's needed to be freed */
-   ifdef_free(home_dir);
+   free(home_dir);
 
    /* This needs to be freed */
    return abs_path;
+}
+
+int mkpath(const char *path, const char *absolute_path)
+{
+   /* Need a duplicate because strtok_r modifies the string */
+   char *rwpath = strdup(path);
+   char *token = NULL;
+
+   /* Keeping track of path */
+   char *complete_path = malloc(strlen(absolute_path) + (strlen(path)*2) + 1);
+   complete_path = strcpy(complete_path, absolute_path);
+
+   char *tmp_ptr = rwpath;
+   while ((token = strtok_r(tmp_ptr, "/", &tmp_ptr))) {
+      complete_path = strcat(complete_path, token);
+      complete_path = strcat(complete_path, "/");
+
+      /* TODO: check if the directory exists */
+      if (open(complete_path, 0) == -1)
+         if (mkdir(complete_path, S_IRWXU) == -1)
+            perror(complete_path);
+   }
+
+   free(complete_path);
+   free(rwpath);
+
+   return 0;
 }
 
 file_t *os_fopen_rw(const char *f_name)
@@ -54,6 +80,7 @@ file_t *os_fopen_rw(const char *f_name)
    fatal_err(f_name, NULL, "File's name is null", NULL);
 
    /* Defining file infors like its descriptor and all the other information */
+   /* TODO: f_infos to inode */
    struct stat f_infos;
    char *content = NULL;
    int fd, st;

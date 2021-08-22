@@ -17,6 +17,8 @@ char *users_path(void);
 
 char *absolute_path(const char* /*file_name*/);
 
+int mkpath(const char* /*path*/, const char* /*absolute_path*/);
+
 /* TODO:
  *  - `os_fopen_rw` is not capable of creating directories;
  *  - doc
