@@ -41,9 +41,6 @@
 #  include <pass/pwman.h>
 #endif
 
-#define ROOT_PATH ".local/share/ezpass/"
-#define PASS_HASH "passwd"
-#define PASS_DB   "db/"
 
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
@@ -71,12 +68,15 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
-   char *program_root = absolute_path(ROOT_PATH);
-   char *program_hash = absolute_path(ROOT_PATH PASS_HASH);
-   char *program_db   = absolute_path(ROOT_PATH PASS_DB);
+   char *program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
+   char *program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
 
-   /* TEST */
-   mkpath(PASS_DB, program_root);
+   /* init */
+   if (pm_init_path()) {
+      fprintf(stderr, "Couldn't create the necessary directories\n");
+      return EXIT_FAILURE;
+   }
+
 #endif
 
    /* 
@@ -137,7 +137,6 @@ int main(int argc, char **argv)
 exit:
 #if defined(_IS_EXPERIMENTAL)
    ifdef_free(program_hash);
-   ifdef_free(program_root);
    ifdef_free(program_db);
 #endif
 

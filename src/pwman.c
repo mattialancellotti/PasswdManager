@@ -66,3 +66,20 @@ hash_exit:
 
    return actual_hash;
 }
+
+int pm_init_path(void)
+{
+   /* Important program paths */
+   char *program_root = absolute_path(PROG_ROOT);
+   char *program_path = absolute_path(PROG_ROOT ROOT_PATH);
+
+   /* Creating paths */
+   if (mkpath(ROOT_PATH, program_root) || mkpath(PASS_DB,   program_path))
+      return -1;
+
+   /* Freeing stuff */
+   free(program_root);
+   free(program_path);
+
+   return 0;
+}

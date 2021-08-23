@@ -1,6 +1,11 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define PROG_ROOT ".local/share/"
+#define ROOT_PATH "ezpass/"
+#define PASS_HASH "passwd"
+#define PASS_DB   "db/"
+
 #define INIT 00001000
 #define STAT 00000100
 #define HELP 00000010

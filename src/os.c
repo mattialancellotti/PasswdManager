@@ -57,15 +57,19 @@ int mkpath(const char *path, const char *absolute_path)
    char *complete_path = malloc(strlen(absolute_path) + (strlen(path)*2) + 1);
    complete_path = strcpy(complete_path, absolute_path);
 
+   /* This pointer is needed because strtok_r changes the given one */
    char *tmp_ptr = rwpath;
    while ((token = strtok_r(tmp_ptr, "/", &tmp_ptr))) {
       complete_path = strcat(complete_path, token);
       complete_path = strcat(complete_path, "/");
 
-      /* TODO: check if the directory exists */
+      /* Checks if the directory exists */
       if (open(complete_path, 0) == -1)
-         if (mkdir(complete_path, S_IRWXU) == -1)
+         if (mkdir(complete_path, S_IRWXU) == -1) {
             perror(complete_path);
+
+            return -1;
+         }
    }
 
    free(complete_path);
