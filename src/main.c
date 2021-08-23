@@ -41,15 +41,8 @@
 #  include <pass/pwman.h>
 #endif
 
-
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
-
-/* Important paths */
-static const char *program_files[2] = {
-   ".local/share/ezpass/passwd",
-   ".local/share/ezpass/db/"
-};
 
 /* Just the main function */
 int main(int argc, char **argv)
@@ -74,6 +67,9 @@ int main(int argc, char **argv)
    /* init */
    if (pm_init_path()) {
       fprintf(stderr, "Couldn't create the necessary directories\n");
+
+      free(program_hash);
+      free(program_db);
       return EXIT_FAILURE;
    }
 
@@ -162,22 +158,17 @@ void help()
 
 static int confirm_identity(const char *program_hash)
 {
-   char *passwd = NULL;
-   char *real_hash = NULL;
+   /* Getting the actual hash from the file */
+   char *real_hash = pm_hash(program_hash);
+   if (real_hash == NULL) {
+      fprintf(stderr, "User ezpass --init\n");
+      return -1;
+   }
 
    /* Asking the password */
    printf("Insert the password: ");
-   passwd = ask_pass();
+   char *passwd = ask_pass();
    printf("\n");
-
-   /* Getting the actual hash from the file */
-   real_hash = pm_hash(program_hash);
-   if (real_hash == NULL) {
-      fprintf(stderr, "User ezpass --init\n");
-
-      free(passwd);
-      return -1;
-   }
 
    /* Checking the password */
    if (hash_check(real_hash, passwd) == -1) {
