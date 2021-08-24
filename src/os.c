@@ -40,10 +40,8 @@ char *absolute_path(const char *file_name)
    char *abs_path = malloc(strlen(home_dir) + strlen(file_name) + 1);
    abs_path = strcat(strcpy(abs_path, home_dir), file_name);
 
-   /* Freeing what's needed to be freed */
-   free(home_dir);
-
    /* This needs to be freed */
+   free(home_dir);
    return abs_path;
 }
 

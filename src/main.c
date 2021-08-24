@@ -62,6 +62,9 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
+   /* TODO: Might want to declare those static and global so that I can call a
+    * function on exit (atexit) to free them
+    */
    char *program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
    char *program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
 
@@ -81,6 +84,8 @@ int main(int argc, char **argv)
     * password. The generated password should follow those properties.
     *
     * It has default options useful to the `handle_args` function.
+    *
+    * TODO: Adapt this to be both a passwd gen and a manager.
     */
    service_t config_file = { 
       .service_name = NULL,
@@ -95,9 +100,12 @@ int main(int argc, char **argv)
     */
    /* Handling arguments */
    int success = handle_args(argc, argv, &config_file);
-   if (success == -1)
-      goto exit;
-   else if (check_bit(success, (HELP|VERS))) {
+   if (success == -1) {
+      free(program_hash);
+      free(program_db);
+
+      return EXIT_FAILURE;
+   } else if (check_bit(success, (HELP|VERS))) {
       /* Checking which function needs to be called */
       if (check_bit(success, HELP))
          (void) help();
@@ -105,25 +113,34 @@ int main(int argc, char **argv)
          printf("Version: %.1f\n", VERSION);
       
       /* All other actions are ignored in this case */
-      return EXIT_SUCCESS;
+      goto exit;
    } else if (check_bit(success, INIT)) {
       /* TODO:
        *  - Check if the user will lose any data;
        *  - Ask the previous password to do that;
        */
 #if defined(_IS_EXPERIMENTAL)
-      pm_init(program_hash);
-      free(program_hash);
+      pm_init_hash(program_hash);
 
-      return EXIT_SUCCESS;
+      goto exit;
 #else
       ;
 #endif
    }
 
 #if defined(_IS_EXPERIMENTAL)
-   if (confirm_identity(program_hash))
+   if (confirm_identity(program_hash)) {
+      free(program_hash);
+      free(program_db);
+
+      /* Tells the other that I failed :-( */
       return EXIT_FAILURE;
+   }
+
+   if (config_file.service_name != NULL) {
+      pm_create_service(config_file.service_name);
+      fprintf(stdout, "%s created.", config_file.service_name);
+   }
 #endif
 
    /* Temporary way of generating passwords */
@@ -169,10 +186,8 @@ static int confirm_identity(const char *program_hash)
 {
    /* Getting the actual hash from the file */
    char *real_hash = pm_hash(program_hash);
-   if (real_hash == NULL) {
-      fprintf(stderr, "User ezpass --init\n");
+   if (real_hash == NULL)
       return -1;
-   }
 
    /* Asking the password */
    printf("Insert the password: ");
