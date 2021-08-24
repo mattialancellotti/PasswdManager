@@ -42,6 +42,7 @@
 
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
+
 #endif
 
 /* Just the main function */

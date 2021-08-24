@@ -29,9 +29,9 @@ static int use = 0, vers = 0, stat = 0, init = 0;
  */
 /*
  * TODO:
- *    - Add `temp` to generate a temporary password for One Time Use;
- *      (means that I need to implement On Time Passwords)
- *    - Add `show` to show the password(s) for that service
+ *    - Add `generate|g` to generate a password
+ *    - Add `show|S` to show the password(s) for that service
+ *    - Add `passwd|p` to specify the password for a service
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
