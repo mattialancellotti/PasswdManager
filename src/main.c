@@ -146,14 +146,21 @@ exit:
 void help()
 {
    /* Pretty print */
-   printf("ezPass - Password Manager\n");
-   printf("\t-l, --length      : to specify the length of the password.\n"   );
-   printf("\t-n, --not-admitted: to specify which type of character is not\n");
-   printf("\t                    allowed [digit - u_char - l_char - sign]\n" );
-   printf("\t-t, --times       : to specify how many password you need\n"    );
-   printf("\t    --stats       : to print the stats\n"  );
-   printf("\t    --help        : to show this message\n");
-   printf("\t    --version     : to print the current version of the program\n");
+   printf(
+      "ezPass - Password Manager & Password Generator\n\n"
+      "Password Manager:\n"
+      "\t-s, --service     : Specifies the name of the service.\n"
+      "Password Generator:\n"
+      "\t-l, --length      : to specify the length of the password.\n"
+      "\t-n, --not-admitted: to specify which type of character is not\n"
+      "\t                    allowed [digit - u_char - l_char - sign]\n"
+      "\t-t, --times       : to specify how many password you need\n"
+      "Actions:\n"
+      "\t    --stats       : to print the stats\n"
+      "Program:\n"
+      "\t    --help        : to show this message\n"
+      "\t    --version     : to print the current version of the program\n"
+   );
 }
 
 #if defined(_IS_EXPERIMENTAL)
