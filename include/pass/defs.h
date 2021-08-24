@@ -21,17 +21,19 @@
       var = NULL; \
    }
 
-/*
- * TODO:
- *  - prog_err(condition, msg, action);
- *    To safely inform the user that an error is being taken care of.
- */
 #define system_err(condition, msg, exit_code); \
    if (condition) { \
       perror(msg); \
       return exit_code; \
    }
 
+#define prog_err(condition, msg, action); \
+   if (condition) { \
+      fprintf(stderr, "(%s) %d: %s: %s\n", __FILE__, __LINE__, __func__, msg); \
+      action; \
+   }
+
+/* TODO: __DEPRECATED__ */
 #define fatal_err(errno, status, msg, code); \
    if (errno == status) { \
       perror(msg); \
@@ -48,14 +50,17 @@
       return code;
 
       
+/* TODO: __DEPRECATED__ */
 #define exit_eq(errno, status, code); \
       if (errno == status) \
          return code;
 
+/* TODO: __DEPRECATED__ */
 #define exit_lt(errno, status, code); \
       if (errno < status) \
          return code;
 
+/* TODO: __DEPRECATED__ */
 #define exit_gt(errno, status, code); \
       if (errno > status) \
          return code;

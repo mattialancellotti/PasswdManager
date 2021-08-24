@@ -29,8 +29,6 @@ char *absolute_path(const char* /*file_name*/);
  * This function accepts 2 different string, `path` is the relative path of
  * non-existing directories and `absolute_path` is the location chosen to put
  * those directory in.
- *
- * It 
  */
 int mkpath(const char* /*path*/, const char* /*absolute_path*/);
 
@@ -43,10 +41,24 @@ int is_empty(const char* /*path*/);
 
 /* TODO:
  *  - doc
- *  - name
  */
+
 file_t *mcreate_open(const char* /*f_name*/);
+
+
+/*
+ * This function uses the `write` call to write down `content` to the file
+ * identified by the file descriptor `fd`.
+ */
 int cwrite(const int /*fd*/, const char* /*content*/);
+
+/*
+ * This function accepts a file and closes all its resources, the file
+ * descriptor using the `close` syscall and unmaps the content if it's present.
+ *
+ * Also before unmapping the content it's also synced to the disk through the
+ * `msync` syscall.
+ */
 int mclose(file_t* /*file*/);
 
 #endif

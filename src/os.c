@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <errno.h>
 
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -23,7 +24,7 @@ char *users_path(void)
 {
    /* Getting user's uid to search its default $HOME directory */
    struct passwd *user_info = getpwuid(getuid());
-   exit_eq(user_info, NULL, NULL);
+   system_err((user_info == NULL), "getpwuid", NULL);
 
    /* Saving the home directory of the current user */
    char *home_dir = malloc(strlen(user_info->pw_dir) + 2);
@@ -36,6 +37,8 @@ char *users_path(void)
 
 char *absolute_path(const char *file_name)
 {
+   prog_err((file_name == NULL), "Needs a valid file name.", return NULL);
+
    /* Creating the complete path */
    char *home_dir = users_path();
    char *abs_path = malloc(strlen(home_dir) + strlen(file_name) + 1);
@@ -81,18 +84,32 @@ int mkpath(const char *path, const char *absolute_path)
 
 int is_empty(const char *path)
 {
-   exit_eq(path, NULL, -1);
+   prog_err((path == NULL), "The specified path is not valid.", return -1);
 
    int count = 0;
-   DIR *path_stream = opendir(path);
-   fatal_err(path_stream, NULL, "opendir", -1);
+   struct dirent *file_stream;
 
-   /* TODO: errno checking (see RETURN VALUE in readdir.3 manual) */
-   while (readdir(path_stream))
+   /* Opening a stream to the directory */
+   DIR *path_stream = opendir(path);
+   system_err((path_stream == NULL), "opendir", -1);
+
+   /* Listing files */
+   errno = 0;
+   while ((file_stream = readdir(path_stream)))
       count++;
    
-   int err = closedir(path_stream);
-   fatal_err(err, -1, "closedire", -1);
+   /* 
+    * Since `readdir` exits with NULL when there are no files as well as when
+    * theres is an error, this macro checks if an errno was set and act
+    * consequently.
+    *
+    * Also `file_stream` is a statically allocated struct that does not need to
+    * be deallocated.
+    */
+   system_err((errno != 0), "readdir", -1);
+
+   /* Closing the file stream and checking for final errors */
+   system_err((closedir(path_stream) == -1), "closedir", -1);
 
    /* Bot `.` and `..` are counted and to avoid this 2 is being subracted. */
    return count-2;
@@ -101,8 +118,7 @@ int is_empty(const char *path)
 file_t *mcreate_open(const char *f_name)
 {
    /* Checking the file's name */
-   /* TODO: not correct use of */
-   fatal_err(f_name, NULL, "File's name is null", NULL);
+   prog_err((f_name == NULL), "Specify a valdi file name.", return NULL);
 
    /* Defining file infors like its descriptor and all the other information */
    struct stat inode;
@@ -114,20 +130,24 @@ file_t *mcreate_open(const char *f_name)
     *  - Might wanna add those flags mentioned in the init_io function;
     */
    fd = open(f_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-   fatal_err(fd, -1, "open", NULL);
+   system_err((fd == -1), "open", NULL);
 
    /* Grabbing infos about the file and mapping it */
    st = fstat(fd, &inode);
-   fatal_err(st, -1, "fstat", NULL);
+   system_err((st == -1), "fstat", NULL);
 
-   /* Checking if the file is new/empty */
+   /*
+    * This is needed because the `open` syscall could also have created the file
+    * passed to the function. By doing so the mapping function `mmap` won't work
+    * because it basically tries to map an empty region.
+    */
    if (inode.st_size == 0)
       return file_t_malloc(content, fd);
 
    /* Mapping the file */
    content = mmap(NULL, inode.st_size,
                   PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-   fatal_err(content, MAP_FAILED, "mmap", NULL);
+   system_err((content == MAP_FAILED), "mmap", NULL);
 
    /* Returning a pointer to the file */
    return file_t_malloc(content, fd);
@@ -135,13 +155,13 @@ file_t *mcreate_open(const char *f_name)
 
 int cwrite(int fd, const char *content)
 {
-   exit_eq(content, NULL, -1);
+   prog_err((content == NULL), "No actual content to write.", return -1);
 
    size_t clen = strlen(content);
 
    /* Writing stuff down */
    ssize_t werr = write(fd,  content, clen);
-   exit_eq(werr, -1, -1);
+   system_err((werr == -1), "write", -1);
    
    return 0;
 }
@@ -149,24 +169,24 @@ int cwrite(int fd, const char *content)
 int mclose(file_t *file)
 {
    /* Checking if the file is not null */
-   exit_eq(file, NULL, -1);
+   prog_err((file == NULL), "The specified file doesn't exists.", return -1);
 
    /* Closing the file descriptor */
    int desc = close(file->fd);
-   fatal_err(desc, -1, "close", -1);
+   system_err((desc == -1), "close", -1);
 
    /* This is only needed for unmapping the file */
    if (file->file_content == NULL)
       goto close_exit;
 
-   /* Syincing the content of the file */
+   /* Syncing the content of the file */
    size_t len = strlen(file->file_content);
    int sync = msync(file->file_content, len, MS_SYNC|MS_INVALIDATE);
-   fatal_err(sync, -1, "msync", -1);
+   system_err((sync == -1), "msync", -1);
 
    /* Unmapping the file */
    int umap = munmap(file->file_content, len);
-   fatal_err(umap, -1, "munmap", -1);
+   system_err((umap == -1), "munmap", -1);
 
 
    /* Freeing the structure */
@@ -189,7 +209,7 @@ static file_t *file_t_malloc(char *content, int fd)
 
 static void file_t_free(file_t *fstruct)
 {
-   exit_eq(fstruct, NULL,);
+   exit_if((fstruct == NULL),);
 
    if (fstruct->file_content != NULL)
       free(fstruct->file_content);
