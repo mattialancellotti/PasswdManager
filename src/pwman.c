@@ -35,7 +35,7 @@ int pm_init_hash(const char *hash_file)
 
    /* Writing the hash password to the file */
    file_t *file = os_fopen_rw(hash_file);
-   int werr = os_fwrite(file->fd, hash);
+   int werr = cwrite(file->fd, hash);
    int cerr = os_fclose(file);
 
    free(passwd);

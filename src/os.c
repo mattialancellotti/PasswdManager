@@ -4,7 +4,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <dirent.h>
 
+#include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -13,6 +15,7 @@
 #include <pass/defs.h>
 #include <pass/os.h>
 
+/* TODO: doc */
 static file_t *file_t_malloc(char* /*content*/, int /*fd*/);
 static void file_t_free(file_t* /*fstruct*/);
 
@@ -33,10 +36,8 @@ char *users_path(void)
 
 char *absolute_path(const char *file_name)
 {
-   /* Getting the user's home directory */
-   char *home_dir = users_path();
-
    /* Creating the complete path */
+   char *home_dir = users_path();
    char *abs_path = malloc(strlen(home_dir) + strlen(file_name) + 1);
    abs_path = strcat(strcpy(abs_path, home_dir), file_name);
 
@@ -57,6 +58,8 @@ int mkpath(const char *path, const char *absolute_path)
 
    /* This pointer is needed because strtok_r changes the given one */
    char *tmp_ptr = rwpath;
+
+   /* Thise while loops through all the pecies of the given path */
    while ((token = strtok_r(tmp_ptr, "/", &tmp_ptr))) {
       complete_path = strcat(complete_path, token);
       complete_path = strcat(complete_path, "/");
@@ -76,9 +79,29 @@ int mkpath(const char *path, const char *absolute_path)
    return 0;
 }
 
+int is_empty(const char *path)
+{
+   exit_eq(path, NULL, -1);
+
+   int count = 0;
+   DIR *path_stream = opendir(path);
+   fatal_err(path_stream, NULL, "opendir", -1);
+
+   /* TODO: errno checking (see RETURN VALUE in readdir.3 manual) */
+   while (readdir(path_stream))
+      count++;
+   
+   int err = closedir(path_stream);
+   fatal_err(err, -1, "closedire", -1);
+
+   /* Bot `.` and `..` are counted and to avoid this 2 is being subracted. */
+   return count-2;
+}
+
 file_t *os_fopen_rw(const char *f_name)
 {
    /* Checking the file's name */
+   /* TODO: not correct use of */
    fatal_err(f_name, NULL, "File's name is null", NULL);
 
    /* Defining file infors like its descriptor and all the other information */
@@ -111,7 +134,7 @@ file_t *os_fopen_rw(const char *f_name)
    return file_t_malloc(content, fd);
 }
 
-int os_fwrite(int fd, const char *content)
+int cwrite(int fd, const char *content)
 {
    exit_eq(content, NULL, -1);
 

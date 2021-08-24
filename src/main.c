@@ -8,9 +8,6 @@
  *    # Project configuration
  *    - Create a TODO file so that I can plan what it is to be done in order to
  *      get the program always to a usable state.
- *    - Configure Makefile:
- *       - install/uninstall rules
- *       - clean/doc rules
  *    
  *    # Features
  *    - Encrypts those passwords with sodium/libgcrypt.
@@ -115,11 +112,11 @@ int main(int argc, char **argv)
       /* All other actions are ignored in this case */
       goto exit;
    } else if (check_bit(success, INIT)) {
+#if defined(_IS_EXPERIMENTAL)
       /* TODO:
        *  - Check if the user will lose any data;
        *  - Ask the previous password to do that;
        */
-#if defined(_IS_EXPERIMENTAL)
       pm_init_hash(program_hash);
 
       goto exit;
