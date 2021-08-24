@@ -55,16 +55,6 @@
       if (errno == status) \
          return code;
 
-/* TODO: __DEPRECATED__ */
-#define exit_lt(errno, status, code); \
-      if (errno < status) \
-         return code;
-
-/* TODO: __DEPRECATED__ */
-#define exit_gt(errno, status, code); \
-      if (errno > status) \
-         return code;
-
 #if defined(__libsodium__)
 #  define secure_malloc(var, type); \
       type *var = sodium_malloc(sizeof(type)); \
