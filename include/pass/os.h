@@ -45,8 +45,8 @@ int is_empty(const char* /*path*/);
  *  - doc
  *  - name
  */
-file_t *os_fopen_rw(const char* /*f_name*/);
+file_t *mcreate_open(const char* /*f_name*/);
 int cwrite(const int /*fd*/, const char* /*content*/);
-int os_fclose(file_t* /*file*/);
+int mclose(file_t* /*file*/);
 
 #endif

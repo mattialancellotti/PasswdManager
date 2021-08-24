@@ -98,15 +98,14 @@ int is_empty(const char *path)
    return count-2;
 }
 
-file_t *os_fopen_rw(const char *f_name)
+file_t *mcreate_open(const char *f_name)
 {
    /* Checking the file's name */
    /* TODO: not correct use of */
    fatal_err(f_name, NULL, "File's name is null", NULL);
 
    /* Defining file infors like its descriptor and all the other information */
-   /* TODO: f_infos to inode */
-   struct stat f_infos;
+   struct stat inode;
    char *content = NULL;
    int fd, st;
 
@@ -118,15 +117,15 @@ file_t *os_fopen_rw(const char *f_name)
    fatal_err(fd, -1, "open", NULL);
 
    /* Grabbing infos about the file and mapping it */
-   st = fstat(fd, &f_infos);
+   st = fstat(fd, &inode);
    fatal_err(st, -1, "fstat", NULL);
 
    /* Checking if the file is new/empty */
-   if (f_infos.st_size == 0)
+   if (inode.st_size == 0)
       return file_t_malloc(content, fd);
 
    /* Mapping the file */
-   content = mmap(NULL, f_infos.st_size,
+   content = mmap(NULL, inode.st_size,
                   PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
    fatal_err(content, MAP_FAILED, "mmap", NULL);
 
@@ -147,7 +146,7 @@ int cwrite(int fd, const char *content)
    return 0;
 }
 
-int os_fclose(file_t *file)
+int mclose(file_t *file)
 {
    /* Checking if the file is not null */
    exit_eq(file, NULL, -1);
