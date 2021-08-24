@@ -29,15 +29,16 @@ static int use = 0, vers = 0, stat = 0, init = 0;
  */
 /*
  * TODO:
- *    - Add `generate|g` to generate a password
- *    - Add `show|S` to show the password(s) for that service
- *    - Add `passwd|p` to specify the password for a service
+ *    - Add `generate|g` to generate a password;
+ *    - Add `show|S` to show the password(s) for that service;
+ *    - Add `reset` to clear the database;
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
    {"service",      required_argument, 0, 's'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
+   //{"generate",     no_argument,      
    {"init",         no_argument,      &init, INIT },
    {"stats",        no_argument,      &stat, STAT },
    {"help",         no_argument,      &use,  HELP },
