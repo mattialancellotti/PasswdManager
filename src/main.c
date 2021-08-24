@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VERSION 0.2
+#define VERSION 0.3
 
 #if defined(_HAVE_SODIUM)
 #  include <sodium.h>
@@ -39,10 +39,10 @@
 #  include <pass/os.h>
 #  include <pass/crypto.h>
 #  include <pass/pwman.h>
-#endif
 
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
+#endif
 
 /* Just the main function */
 int main(int argc, char **argv)
@@ -156,6 +156,7 @@ void help()
    printf("\t    --version     : to print the current version of the program\n");
 }
 
+#if defined(_IS_EXPERIMENTAL)
 static int confirm_identity(const char *program_hash)
 {
    /* Getting the actual hash from the file */
@@ -183,3 +184,4 @@ static int confirm_identity(const char *program_hash)
    free(real_hash);
    return 0;
 }
+#endif
