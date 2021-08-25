@@ -16,8 +16,16 @@
 #include <pass/defs.h>
 #include <pass/os.h>
 
-/* TODO: doc */
+/*
+ * All the functions regarding file input/output work with a strut that
+ * rapresents a open file. For this reason an allocation function is used to
+ * clear the code up.
+ */
 static file_t *file_t_malloc(char* /*content*/, int /*fd*/);
+
+/* If something is being allocated elegantly with its own function, the
+ * deallocation deserves a function too right?
+ */
 static void file_t_free(file_t* /*fstruct*/);
 
 char *users_path(void)
