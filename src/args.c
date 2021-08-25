@@ -22,7 +22,7 @@ static int use = 0, vers = 0, stat = 0, init = 0;
  * Since the help message or the version of the program are not really
  * password related, they have been split from the main `executing-branch` of
  * the program. Basically the struct defined below tells the `getopt_long` 
- * to assign a value to ret[x] instead of evaluating the parameter in
+ * to assign a value to a flag instead of evaluating the parameter in
  * `handle_args`. This allows to write a shorter and easier code.
  *
  *    Read `man getopt.3`;
@@ -32,6 +32,7 @@ static int use = 0, vers = 0, stat = 0, init = 0;
  *    - Add `generate|g` to generate a password;
  *    - Add `show|S` to show the password(s) for that service;
  *    - Add `reset` to clear the database;
+ *    - Add `delete|d` to delete a single or multiple services;
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
@@ -39,8 +40,8 @@ static const struct option options[] = {
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
    //{"generate",     no_argument,      
-   {"init",         no_argument,      &init, INIT },
-   {"stats",        no_argument,      &stat, STAT },
+   {"init",         no_argument,      &init, true },
+   {"stats",        no_argument,      &stat, true },
    {"help",         no_argument,      &use,  HELP },
    {"version",      no_argument,      &vers, VERS },
    {0,              0,                 0,       0 }
@@ -97,12 +98,11 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
    }
 
    /* Returns successfully */
-   set_bit(success, init);
-   set_bit(success, stat);
+   set_bit(config_file->init, (check_bit(init, true)));
+   set_bit(config_file->stat, (check_bit(stat, true)));
 
    /* These two have the priority over the previous ones */
-   if (use || vers)
-      set_bit(success, ((success & ~success) | (use | vers)));
+   set_bit(success, ((success & ~success) | (use | vers)));
 
    return success;
 }

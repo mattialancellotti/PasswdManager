@@ -6,8 +6,6 @@
 #define PASS_HASH "passwd"
 #define PASS_DB   "db/"
 
-#define INIT 00001000
-#define STAT 00000100
 #define HELP 00000010
 #define VERS 00000001
 

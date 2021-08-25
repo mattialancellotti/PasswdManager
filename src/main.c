@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     */
    if (sodium_init() < 0) {
       /* Something really bad happened */
-      fprintf(stderr, "Couldn't initiate the entropy.");
+      fprintf(stderr, "Couldn't initiate the entropy.\n");
       return EXIT_FAILURE;
    }
 #endif
@@ -111,13 +111,21 @@ int main(int argc, char **argv)
       
       /* All other actions are ignored in this case */
       goto exit;
-   } else if (check_bit(success, INIT)) {
+   }
+
+   if (config_file.init) {
 #if defined(_IS_EXPERIMENTAL)
-      /* TODO:
-       *  - Check if the user will lose any data;
-       *  - Ask the previous password to do that;
+      /* 
+       * There is no reset mechanism here other than forcing the user into
+       * calling the program a second time with the --reset argument. This is
+       * mainly due to lazyness and security/awareness seemed to be a good
+       * excuse.
        */
-      pm_init_hash(program_hash);
+      if (!is_empty(program_db))
+         pm_init_hash(program_hash);
+      else
+         fprintf(stderr, "Use the option --reset if you really "
+                         "want to delete all your saved passwords.\n");
 
       goto exit;
 #else
@@ -136,14 +144,14 @@ int main(int argc, char **argv)
 
    if (config_file.service_name != NULL) {
       pm_create_service(config_file.service_name);
-      fprintf(stdout, "%s created.", config_file.service_name);
+      fprintf(stdout, "Service %s created.", config_file.service_name);
+   } else if (config_file.gen) {
+      /* Temporary way of generating passwords */
+      /* TODO: Solve memory leak */
+      char **passwds = passwd_generator(&config_file);
+      printf("Password: %s\n", passwds[0]);
    }
 #endif
-
-   /* Temporary way of generating passwords */
-   /* TODO: Solve memory leak */
-   char **passwds = passwd_generator(&config_file);
-   printf("Password: %s\n", passwds[0]);
 
 exit:
 #if defined(_IS_EXPERIMENTAL)
@@ -151,9 +159,6 @@ exit:
    ifdef_free(program_db);
 #endif
 
-   /* TODO:
-    *  - return_status;
-    */
    return EXIT_SUCCESS;
 }
 
