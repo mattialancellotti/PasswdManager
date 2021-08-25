@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE 500
+#define _POSIX_C_SOURCE 200809L
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +27,18 @@ static file_t *file_t_malloc(char* /*content*/, int /*fd*/);
  * deallocation deserves a function too right?
  */
 static void file_t_free(file_t* /*fstruct*/);
+
+char *users_input(void)
+{
+   char *buffer;
+   size_t buffer_size = 20;
+
+   /* Reading the user's input the chad way */
+   ssize_t len = getline(&buffer, &buffer_size, stdin);
+   system_err((len == -1), "getline", NULL);
+
+   return buffer;
+}
 
 char *users_path(void)
 {
@@ -126,7 +138,7 @@ int is_empty(const char *path)
 file_t *mcreate_open(const char *f_name)
 {
    /* Checking the file's name */
-   prog_err((f_name == NULL), "Specify a valdi file name.", return NULL);
+   prog_err((f_name == NULL), "Specify a valid file name.", return NULL);
 
    /* Defining file infors like its descriptor and all the other information */
    struct stat inode;

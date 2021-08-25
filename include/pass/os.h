@@ -7,6 +7,9 @@ typedef struct {
    int fd;
 } file_t;
 
+/* TODO doc */
+char *users_input(void);
+
 /*
  * This function searches for the $HOME directory of the user calling the
  * program. If not found a NULL is returned

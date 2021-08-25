@@ -38,6 +38,8 @@ int pm_init_hash(const char *hash_file)
    int werr = cwrite(file->fd, hash);
    int cerr = mclose(file);
 
+   printf("\nThe password manager is good to go.\n");
+
    free(passwd);
    free(verification_passwd);
    free(hash);
@@ -95,7 +97,7 @@ int pm_init_path(void)
 
 int pm_create_service(const char *service_name)
 {
-   exit_eq(service_name, NULL, -1);
+   prog_err((service_name == NULL), "Specify a valid service.", return -1);
 
    /* Creating the service */
    char *program_db = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
@@ -105,9 +107,12 @@ int pm_create_service(const char *service_name)
 
    /* Opens the file pointed by db_service (created if non-existing) */
    file_t *service_file = mcreate_open(db_service);
+   exit_if((service_file == NULL), -1);
+
+   int err = mclose(service_file);
+   exit_if((err == -1), -1);
 
    /* Returning successfully */
-   mclose(service_file);
    free(program_db);
    free(db_service);
 
