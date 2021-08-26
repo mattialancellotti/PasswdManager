@@ -44,6 +44,7 @@ static char *program_db;
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
 static void free_files(void);
+static char ask_confirmation(const char* /*msg*/);
 
 #endif
 
@@ -111,10 +112,8 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
    
-   /* TODO: Handle --reset requests */
-
-   if (config_file.init) {
 #if defined(_IS_EXPERIMENTAL)
+   if (config_file.init) {
       /* 
        * There is no reset mechanism here other than forcing the user into
        * calling the program a second time with the --reset argument. This is
@@ -128,19 +127,28 @@ int main(int argc, char **argv)
                          "want to delete all your saved passwords.\n");
 
       return EXIT_SUCCESS;
-#else
-      ;
-#endif
    }
 
-#if defined(_IS_EXPERIMENTAL)
+   /*
+    * All the action handling except for `--init` should stay after the
+    * confirmation block.
+    */
    if (confirm_identity(program_hash))
       /* Tells the others that I failed :-( */
       return EXIT_FAILURE;
 
+   /* Handling resetting */
+   if (config_file.res) {
+      /* TODO: implement a rmpath that does rm recursively */
+   }
+
+   /* All the other actions [--stat, --generate ] are 'service' specific */
    if (config_file.service_name != NULL) {
+      /* TODO: check if pm_create_service failed */
       pm_create_service(config_file.service_name);
       printf("Service %s created.", config_file.service_name);
+
+      /* TODO: Implement stats, generate e show */
    } else if (config_file.gen) {
       /* Temporary way of generating passwords */
       /* TODO: Solve memory leak */
@@ -210,5 +218,21 @@ static void free_files(void)
 
    ifdef_free(program_hash);
    ifdef_free(program_db);
+}
+
+static char ask_confirmation(const char *msg)
+{
+   const char *default_msg = "Are you sure? (y/N) >>";
+   char *answer = NULL;
+
+   printf("%s", ( msg == NULL ? default_msg : msg));
+   answer = users_input();
+
+   /* If the users is trying the be smart, outsmart him */
+   if (answer == NULL || answer[0] != 'y' || answer[0] != 'Y'
+                      || answer[0] != 'n' || answer[0] != 'N')
+      return 'n';
+
+   return 'y';
 }
 #endif

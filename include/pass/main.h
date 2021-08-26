@@ -19,7 +19,7 @@ typedef struct {
    };
 
    struct {
-      bool reset : 1;
+      bool res   : 1;
       bool init  : 1;
       bool gen   : 1;
       bool del   : 1;

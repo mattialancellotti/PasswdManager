@@ -15,7 +15,8 @@
 static int get_flags(char* /*str*/);
 
 /* options flags */
-static int use = 0, vers = 0, stat = 0, init = 0;
+static int vers = 0, use = 0;
+static int stat = 0, init = 0, gen = 0, res = 0;
 
 /*
  * Declaring arguments.
@@ -39,7 +40,8 @@ static const struct option options[] = {
    {"service",      required_argument, 0, 's'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
-   //{"generate",     no_argument,      
+   {"reset",        no_argument,      &res,  true },
+   {"generate",     no_argument,      &gen,  true },
    {"init",         no_argument,      &init, true },
    {"stats",        no_argument,      &stat, true },
    {"help",         no_argument,      &use,  HELP },
@@ -100,6 +102,8 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
    /* Returns successfully */
    set_bit(config_file->init, (check_bit(init, true)));
    set_bit(config_file->stat, (check_bit(stat, true)));
+   set_bit(config_file->gen,  (check_bit(gen,  true)));
+   set_bit(config_file->res,  (check_bit(res,  true)));
 
    /* These two have the priority over the previous ones */
    set_bit(success, ((success & ~success) | (use | vers)));
