@@ -110,6 +110,8 @@ int main(int argc, char **argv)
       /* All other actions are ignored in this case */
       return EXIT_SUCCESS;
    }
+   
+   /* TODO: Handle --reset requests */
 
    if (config_file.init) {
 #if defined(_IS_EXPERIMENTAL)
@@ -138,7 +140,7 @@ int main(int argc, char **argv)
 
    if (config_file.service_name != NULL) {
       pm_create_service(config_file.service_name);
-      fprintf(stdout, "Service %s created.", config_file.service_name);
+      printf("Service %s created.", config_file.service_name);
    } else if (config_file.gen) {
       /* Temporary way of generating passwords */
       /* TODO: Solve memory leak */
@@ -156,18 +158,22 @@ void help()
    /* Pretty print */
    printf(
       "ezPass - Password Manager & Password Generator\n\n"
-      "Password Manager:\n"
+      "  Password Manager:\n"
       "\t-s, --service     : Specifies the name of the service.\n"
-      "Password Generator:\n"
-      "\t-l, --length      : to specify the length of the password.\n"
-      "\t-n, --not-admitted: to specify which type of character is not\n"
-      "\t                    allowed [digit - u_char - l_char - sign]\n"
-      "\t-t, --times       : to specify how many password you need\n"
-      "Actions:\n"
-      "\t    --stats       : to print the stats\n"
-      "Program:\n"
-      "\t    --help        : to show this message\n"
-      "\t    --version     : to print the current version of the program\n"
+      "  Password Generator:\n"
+      "\t-l, --length      : To specify the length of the password.\n"
+      "\t-n, --not-admitted: To specify which type of character is not\n"
+      "\t                    allowed [digit - u_char - l_char - sign].\n"
+      "\t-t, --times       : To specify how many password you need.\n"
+      "  Actions:\n"
+      "\t    --stats       : Analyzes the password.\n"
+      "\t    --reset       : Clears the database from passwords.\n"
+      "\t    --init        : Used to initiate a new databased of passwords.\n"
+      "\t    --delete      : Can be used to delete a password.\n"
+      "\t    --generate    : Generates a password based on the specific arguments.\n"
+      "  Program:\n"
+      "\t    --help        : Shows this message.\n"
+      "\t    --version     : Prints the current version of the program.\n"
    );
 }
 
