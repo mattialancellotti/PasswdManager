@@ -34,7 +34,7 @@ int pm_init_hash(const char *hash_file)
    hash = hash_password(passwd);
 
    /* Writing the hash password to the file */
-   file_t *file = mcreate_open(hash_file);
+   file_t *file = mopen(hash_file);
    int werr = cwrite(file->fd, hash);
    int cerr = mclose(file);
 
@@ -56,7 +56,7 @@ char *pm_hash(const char *hash_file)
     * Reading the hash saved in `hash_file`. If for some reason an error occurs
     * or the file doesn't exist at all it returns NULL.
     */
-   if ((hash = mcreate_open(hash_file)) == NULL)
+   if ((hash = mopen(hash_file)) == NULL)
       goto hash_exit;
 
    if (hash->file_content == NULL) {
@@ -106,7 +106,7 @@ int pm_create_service(const char *service_name)
    db_service = strcat(db_service, service_name);
 
    /* Opens the file pointed by db_service (created if non-existing) */
-   file_t *service_file = mcreate_open(db_service);
+   file_t *service_file = mopen(db_service);
    exit_if((service_file == NULL), -1);
 
    int err = mclose(service_file);
