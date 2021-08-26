@@ -135,7 +135,36 @@ int is_empty(const char *path)
    return count-2;
 }
 
-file_t *mcreate_open(const char *f_name)
+int exists(const char *f_name)
+{
+   prog_err((f_name == NULL), "Specify a valid file name.", return -1);
+
+   /* 
+    * This call is going to attempt the creation of the `f_name` file. By doing
+    * this the function will try to create the file and if it's already there
+    * it's going to return an errno set to EEXIST.
+    */
+   file_t *tmp_file = mopen(f_name);
+   if (tmp_file == NULL && errno == ENOENT)
+      return 0;
+
+   mclose(tmp_file);
+   return 1;
+}
+
+file_t *mcreate(const char *f_name)
+{
+   prog_err((f_name == NULL), "Specify a valid file name.", return NULL);
+
+   /* Tries to create it */
+   int fd = creat(f_name, S_IRUSR|S_IWUSR);
+   system_err((fd == -1), "creat", NULL);
+
+   /* Returning the new file */
+   return file_t_malloc(NULL, fd);
+}
+
+file_t *mopen(const char *f_name)
 {
    /* Checking the file's name */
    prog_err((f_name == NULL), "Specify a valid file name.", return NULL);
@@ -146,11 +175,10 @@ file_t *mcreate_open(const char *f_name)
    int fd, st;
 
    /* open() is a POSIX syscall. Take a look at open(2) in the man pages */
-   /* TODO:
-    *  - Might wanna add those flags mentioned in the init_io function;
-    */
-   fd = open(f_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-   system_err((fd == -1), "open", NULL);
+   fd = open(f_name, O_RDWR, S_IRUSR | S_IWUSR);
+   if (fd == -1)
+      /* This is not using system_err enymore because I need it to be siltent */
+      return NULL;
 
    /* Grabbing infos about the file and mapping it */
    st = fstat(fd, &inode);

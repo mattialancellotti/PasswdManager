@@ -42,11 +42,13 @@ int mkpath(const char* /*path*/, const char* /*absolute_path*/);
  */
 int is_empty(const char* /*path*/);
 
+int exists(const char* /*f_name*/);
 /* TODO:
  *  - doc
  */
 
-file_t *mcreate_open(const char* /*f_name*/);
+file_t *mcreate(const char* /*f_name*/);
+file_t *mopen(const char* /*f_name*/);
 
 
 /*
