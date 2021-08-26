@@ -37,14 +37,24 @@
 #  include <pass/crypto.h>
 #  include <pass/pwman.h>
 
+/* The program's main files */
+static char *program_hash;
+static char *program_db;
+
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
+static void free_files(void);
 
 #endif
 
-/* Just the main function */
 int main(int argc, char **argv)
 {
+   /* If there are no arguments prints the help message and be done with it. */
+   if (argc == 1) {
+      (void) help();
+      return EXIT_SUCCESS;
+   }
+
 #if defined(_HAVE_SODIUM)
    /*
     * Generating entropy and preparing some other things.
@@ -59,20 +69,13 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
-   /* TODO: Might want to declare those static and global so that I can call a
-    * function on exit (atexit) to free them
-    */
-   char *program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
-   char *program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
+   program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   prog_err(atexit(free_files), "Couln't set exit function.", _Exit(EXIT_FAILURE));
 
    /* init */
-   if (pm_init_path()) {
-      fprintf(stderr, "Couldn't create the necessary directories\n");
-
-      free(program_hash);
-      free(program_db);
-      return EXIT_FAILURE;
-   }
+   int err_path = pm_init_path();
+   prog_err(err_path, "Couldn't create the program's db.", return EXIT_FAILURE);
 
 #endif
 
@@ -81,8 +84,6 @@ int main(int argc, char **argv)
     * password. The generated password should follow those properties.
     *
     * It has default options useful to the `handle_args` function.
-    *
-    * TODO: Adapt this to be both a passwd gen and a manager.
     */
    service_t config_file = { 
       .service_name = NULL,
@@ -97,12 +98,9 @@ int main(int argc, char **argv)
     */
    /* Handling arguments */
    int success = handle_args(argc, argv, &config_file);
-   if (success == -1) {
-      free(program_hash);
-      free(program_db);
-
+   if (success == -1)
       return EXIT_FAILURE;
-   } else if (check_bit(success, (HELP|VERS))) {
+   else if (check_bit(success, (HELP|VERS))) {
       /* Checking which function needs to be called */
       if (check_bit(success, HELP))
          (void) help();
@@ -110,7 +108,7 @@ int main(int argc, char **argv)
          printf("Version: %.1f\n", VERSION);
       
       /* All other actions are ignored in this case */
-      goto exit;
+      return EXIT_SUCCESS;
    }
 
    if (config_file.init) {
@@ -127,20 +125,16 @@ int main(int argc, char **argv)
          fprintf(stderr, "Use the option --reset if you really "
                          "want to delete all your saved passwords.\n");
 
-      goto exit;
+      return EXIT_SUCCESS;
 #else
       ;
 #endif
    }
 
 #if defined(_IS_EXPERIMENTAL)
-   if (confirm_identity(program_hash)) {
-      free(program_hash);
-      free(program_db);
-
-      /* Tells the other that I failed :-( */
+   if (confirm_identity(program_hash))
+      /* Tells the others that I failed :-( */
       return EXIT_FAILURE;
-   }
 
    if (config_file.service_name != NULL) {
       pm_create_service(config_file.service_name);
@@ -151,12 +145,6 @@ int main(int argc, char **argv)
       char **passwds = passwd_generator(&config_file);
       printf("Password: %s\n", passwds[0]);
    }
-#endif
-
-exit:
-#if defined(_IS_EXPERIMENTAL)
-   ifdef_free(program_hash);
-   ifdef_free(program_db);
 #endif
 
    return EXIT_SUCCESS;
@@ -198,7 +186,7 @@ static int confirm_identity(const char *program_hash)
 
    /* Checking the password */
    if (hash_check(real_hash, passwd) == -1) {
-      fprintf(stderr, "Wrong password\n");
+      fprintf(stderr, "Wrong password foo.\n");
 
       free(real_hash);
       free(passwd);
@@ -208,5 +196,13 @@ static int confirm_identity(const char *program_hash)
    free(passwd);
    free(real_hash);
    return 0;
+}
+
+static void free_files(void)
+{
+   printf("Bye Bye :D\n");
+
+   ifdef_free(program_hash);
+   ifdef_free(program_db);
 }
 #endif
