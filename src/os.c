@@ -30,7 +30,7 @@ static void file_t_free(file_t* /*fstruct*/);
 
 char *users_input(void)
 {
-   char *buffer;
+   char *buffer = NULL;
    size_t buffer_size = 20;
 
    /* Reading the user's input the chad way */
