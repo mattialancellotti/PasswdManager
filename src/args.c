@@ -16,7 +16,7 @@ static int get_flags(char* /*str*/);
 
 /* options flags */
 static int vers = 0, use = 0;
-static int stat = 0, init = 0, gen = 0, res = 0;
+static int init = 0, res = 0;
 
 /*
  * Declaring arguments.
@@ -40,10 +40,11 @@ static const struct option options[] = {
    {"service",      required_argument, 0, 's'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
-   {"reset",        no_argument,      &res,  true },
-   {"generate",     no_argument,      &gen,  true },
+   {"generate",     no_argument,       0, 'g'},
+   {"stats",        no_argument,       0, 'T'},
+   {"show",         no_argument,       0, 'S'},
+   {"purge",        no_argument,      &res,  true },
    {"init",         no_argument,      &init, true },
-   {"stats",        no_argument,      &stat, true },
    {"help",         no_argument,      &use,  HELP },
    {"version",      no_argument,      &vers, VERS },
    {0,              0,                 0,       0 }
@@ -67,9 +68,10 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
       case '?':
          /* Unsuccessfull matching */
          return -1;
-      case 's':
-         config_file->service_name = optarg;
-         break;
+      case 'g': set_bit(config_file->gen,  true); break;
+      case 'T': set_bit(config_file->stat, true); break;
+      case 'S': set_bit(config_file->show, true); break;
+      case 's': config_file->service = optarg;    break;
       case 'l':
          /* Sets the length of the password */
          if ((length = (size_t)atoi(optarg)) && length >= PASSWD_MIN_LENGTH 
@@ -81,7 +83,7 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
       case 'n':
          /* Uses `get_flags(..)` to get an unsigned flag of banned characters */
 	 config_file->char_not_admitted = get_flags(optarg);
-         if (config_file->char_not_admitted == 15) {
+         if (config_file->char_not_admitted == 16) {
             fprintf(stderr, "Fatal: can't accept all types as argument\n");
             return -1;
          }
@@ -101,8 +103,6 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
 
    /* Returns successfully */
    set_bit(config_file->init, (check_bit(init, true)));
-   set_bit(config_file->stat, (check_bit(stat, true)));
-   set_bit(config_file->gen,  (check_bit(gen,  true)));
    set_bit(config_file->res,  (check_bit(res,  true)));
 
    /* These two have the priority over the previous ones */

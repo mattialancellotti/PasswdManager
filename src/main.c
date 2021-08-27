@@ -38,13 +38,13 @@
 #  include <pass/pwman.h>
 
 /* The program's main files */
+static char *program_root;
 static char *program_hash;
 static char *program_db;
 
 /* TODO: doc */
 static int confirm_identity(const char* /*program_hash*/);
 static void free_files(void);
-static char ask_confirmation(const char* /*msg*/);
 
 #endif
 
@@ -70,6 +70,7 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
+   program_root = absolute_path(PROG_ROOT ROOT_PATH);
    program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
    program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
    prog_err(atexit(free_files), "Couln't set exit function.", _Exit(EXIT_FAILURE));
@@ -87,7 +88,7 @@ int main(int argc, char **argv)
     * It has default options useful to the `handle_args` function.
     */
    service_t config_file = { 
-      .service_name = NULL,
+      .service = NULL,
       .length = DEFAULT_PASSWD_SIZE,
       .times  = 1,
       .char_not_admitted = 0,
@@ -112,6 +113,7 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
    
+   /* TODO: Check if the hash file exists before anything else */
 #if defined(_IS_EXPERIMENTAL)
    if (config_file.init) {
       /* 
@@ -143,18 +145,29 @@ int main(int argc, char **argv)
    }
 
    /* All the other actions [--stat, --generate ] are 'service' specific */
-   if (config_file.service_name != NULL) {
+   char *passwd = NULL;
+   if (config_file.service != NULL) {
       /* TODO: check if pm_create_service failed */
-      pm_create_service(config_file.service_name);
-      printf("Service %s created.", config_file.service_name);
+      int spm_err = pm_create_service(config_file.service);
+      if (spm_err == -1) {
+         fprintf(stderr, "ezpass was unable to complete the operation "
+                         "due to an unexpected error.\n");
+         return EXIT_FAILURE;
+      } else if (spm_err == 1)
+         return EXIT_SUCCESS;
 
       /* TODO: Implement stats, generate e show */
+      /* Checking if the password for the service needs to be generated or not */
+      if (config_file.gen == true)
+         passwd = create_passwd(config_file.length, 
+                                 config_file.char_not_admitted);
+
+
    } else if (config_file.gen) {
       /* Temporary way of generating passwords */
-      /* TODO: Solve memory leak */
-      char **passwds = passwd_generator(&config_file);
-      printf("Password: %s\n", passwds[0]);
    }
+
+   ifdef_free(passwd);
 #endif
 
    return EXIT_SUCCESS;
@@ -194,7 +207,7 @@ static int confirm_identity(const char *program_hash)
       return -1;
 
    /* Asking the password */
-   printf("Insert the password: ");
+   printf("Unlock the password manager: ");
    char *passwd = ask_pass();
    printf("\n");
 
@@ -218,21 +231,24 @@ static void free_files(void)
 
    ifdef_free(program_hash);
    ifdef_free(program_db);
+   ifdef_free(program_root);
 }
 
-static char ask_confirmation(const char *msg)
+char ask_confirmation(const char *msg)
 {
    const char *default_msg = "Are you sure? (y/N) >>";
    char *answer = NULL;
+   char ret = 'y';
 
    printf("%s", ( msg == NULL ? default_msg : msg));
    answer = users_input();
 
    /* If the users is trying the be smart, outsmart him */
-   if (answer == NULL || answer[0] != 'y' || answer[0] != 'Y'
-                      || answer[0] != 'n' || answer[0] != 'N')
-      return 'n';
+   if (answer == NULL && answer[0] != 'y' && answer[0] != 'Y'
+                      && answer[0] != 'n' && answer[0] != 'N')
+      ret = 'n';
 
-   return 'y';
+   free(answer);
+   return ret;
 }
 #endif

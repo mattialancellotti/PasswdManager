@@ -11,7 +11,7 @@
 #define DEFAULT_PASSWD_SIZE 8
 
 typedef struct {
-   char *service_name;
+   char *service;
 
    struct {
       size_t length, times;
@@ -24,7 +24,8 @@ typedef struct {
       bool gen   : 1;
       bool del   : 1;
       bool stat  : 1;
-      unsigned   : 3;
+      bool show  : 1;
+      unsigned   : 2;
    };
 } service_t;
 
@@ -34,5 +35,8 @@ typedef struct {
  * it will also prints the version of the program.
  */
 void help(void);
+
+/* TODO: Put this into its own file with some other user input functions */
+char ask_confirmation(const char* /*msg*/);
 
 #endif
