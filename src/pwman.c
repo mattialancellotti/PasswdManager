@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <pass/defs.h>
+#include <pass/main.h>
 #include <pass/pwman.h>
 #include <pass/os.h>
 #include <pass/term.h>
@@ -98,6 +99,9 @@ int pm_init_path(void)
 int pm_create_service(const char *service_name)
 {
    prog_err((service_name == NULL), "Specify a valid service.", return -1);
+   const char *msg = "The service already exists, "
+                     "are you sure you want to overwrite it? [y/N] ";
+   int exit_status = 0;
 
    /* Creating the service */
    char *program_db = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
@@ -105,16 +109,27 @@ int pm_create_service(const char *service_name)
    db_service = strcpy(db_service, program_db);
    db_service = strcat(db_service, service_name);
 
+   /* Checking the existance of the specified service */
+   if (!exists(service_name)) {
+      if (ask_confirmation(msg) == 'n') {
+         printf("Creation of the service '%s' interrupted.\n", service_name);
+         exit_status = 1;
+         goto no_service;
+      }
+   }
+
    /* Opens the file pointed by db_service (created if non-existing) */
-   file_t *service_file = mopen(db_service);
+   file_t *service_file = mcreate(db_service);
    exit_if((service_file == NULL), -1);
 
    int err = mclose(service_file);
    exit_if((err == -1), -1);
+   printf("Service '%s' was successfully created.\n", service_name);
 
    /* Returning successfully */
+no_service:
    free(program_db);
    free(db_service);
 
-   return 0;
+   return exit_status;
 }
