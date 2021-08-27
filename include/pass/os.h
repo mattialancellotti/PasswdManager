@@ -35,6 +35,8 @@ char *absolute_path(const char* /*file_name*/);
  */
 int mkpath(const char* /*path*/, const char* /*absolute_path*/);
 
+int rmpath(const char* /*path*/);
+
 /*
  * This function accepts the absolute path of a directory and counts all the
  * file that resides in it. If an error accurs -1 is returned, otherwise the

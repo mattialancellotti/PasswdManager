@@ -1,4 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
 
 #include <stdlib.h>
 #include <string.h>
@@ -99,6 +100,47 @@ int mkpath(const char *path, const char *absolute_path)
    free(complete_path);
    free(rwpath);
 
+   return 0;
+}
+
+int rmpath(const char *path)
+{
+   prog_err((path == NULL), "The specified path is not valid.", return -1);
+   struct dirent *file_stream;
+
+   /* Opening a stream to the directory */
+   DIR *path_stream = opendir(path);
+   system_err((path_stream == NULL), "opendir", -1);
+
+   errno = 0;
+   while ((file_stream = readdir(path_stream))) {
+      /* Checking if the navigation directories are included */
+      if (!strcmp(file_stream->d_name, ".") || !strcmp(file_stream->d_name, ".."))
+         continue;
+
+      char *tmp = malloc(strlen(path) + strlen(file_stream->d_name) + 1);
+      tmp = strcat(strcpy(tmp, path), file_stream->d_name);
+
+      /* Checking file type and deleting it */
+      switch (file_stream->d_type) {
+      case DT_UNKNOWN: return -1;    
+      case DT_DIR:
+         prog_err((rmpath(tmp) == -1), "Couldn't complete the operation.", return -1);
+         break;
+      case DT_REG:
+         system_err((unlink(tmp) == -1), "remove", -1);
+         break;
+      }
+
+      ifdef_free(tmp);
+   }
+
+   /* Closing the file stream */
+   system_err((errno != 0), "readdir", -1);
+   system_err((closedir(path_stream) == -1), "closedir", -1);
+   
+   /* Deleting the root dir */
+   system_err((rmdir(path) == -1), "rmdir", -1);
    return 0;
 }
 
