@@ -31,13 +31,6 @@
       action; \
    }
 
-/* TODO: __DEPRECATED__ */
-#define fatal_err(errno, status, msg, code); \
-   if (errno == status) { \
-      perror(msg); \
-      return code; \
-   }
-
 #define warn_user(condition, msg); \
    if (condition) \
       fprintf(stderr, msg);
@@ -46,13 +39,7 @@
 #define exit_if(condition, code); \
    if (condition) \
       return code;
-
       
-/* TODO: __DEPRECATED__ */
-#define exit_eq(errno, status, code); \
-      if (errno == status) \
-         return code;
-
 #if defined(__libsodium__)
 #  define secure_malloc(var, type); \
       type *var = sodium_malloc(sizeof(type)); \
