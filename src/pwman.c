@@ -110,7 +110,7 @@ int pm_create_service(const char *service_name)
    db_service = strcat(db_service, service_name);
 
    /* Checking the existance of the specified service */
-   if (!exists(service_name)) {
+   if (exists(db_service)) {
       if (ask_confirmation(msg) == 'n') {
          printf("Creation of the service '%s' interrupted.\n", service_name);
          exit_status = 1;
