@@ -32,8 +32,6 @@ static int init = 0, res = 0;
  * TODO:
  *    - Add `generate|g` to generate a password;
  *    - Add `show|S` to show the password(s) for that service;
- *    - Add `reset` to clear the database;
- *    - Add `delete|d` to delete a single or multiple services;
  */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
