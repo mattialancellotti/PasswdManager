@@ -91,8 +91,12 @@ int pm_init_path(void)
     * otherwise they are created. If some error happens during the creation
     * this functions returns -1. (Look at `mkpath` in os.c)
     */
-   if (mkpath(ROOT_PATH, program_root) || mkpath(PASS_DB,   program_path))
+   if (mkpath(ROOT_PATH, program_root) || mkpath(PASS_DB,   program_path)) {
+      free(program_root);
+      free(program_path);
+
       return -1;
+   }
 
    /* Freeing stuff */
    free(program_root);
