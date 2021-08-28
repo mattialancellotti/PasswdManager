@@ -96,6 +96,18 @@ int pm_init_path(void)
    return 0;
 }
 
+int pm_purge_db(const char *db)
+{
+   prog_err((db == NULL), "Specify a valid database.", return -1);
+
+   if (rmpath(db) == -1) {
+      fprintf(stderr, "Couldn't complete the purge of the database.\n");
+      return -1;
+   }
+
+   return 0;
+}
+
 int pm_create_service(const char *service_name)
 {
    prog_err((service_name == NULL), "Specify a valid service.", return -1);
