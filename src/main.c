@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define VERSION 0.3
 
@@ -234,21 +235,28 @@ static void free_files(void)
    ifdef_free(program_root);
 }
 
+#define case_ins(var, ch) ((var == ch) || (var == (ch+32)))
 char ask_confirmation(const char *msg)
 {
    const char *default_msg = "Are you sure? (y/N) >>";
+   const char short_yes = 'y', short_no = 'n';
    char *answer = NULL;
-   char ret = 'y';
+   char ret = '\0';
 
-   printf("%s", ( msg == NULL ? default_msg : msg));
-   answer = users_input();
+   do {
+      printf("%s", ( msg == NULL ? default_msg : msg));
+      answer = users_input();
 
-   /* If the users is trying the be smart, outsmart him */
-   if (answer == NULL && answer[0] != 'y' && answer[0] != 'Y'
-                      && answer[0] != 'n' && answer[0] != 'N')
-      ret = 'n';
+      /* If the users is trying the be smart, outsmart him */
+      if (case_ins(answer[0], 'Y') || case_ins(answer[0], 'N'))
+         ret = tolower(answer[0]);
+      else
+         fprintf(stderr, "'%s', what's that?", answer);
 
-   free(answer);
+      free(answer);
+   } while (ret == '\0');
+
+   /* Returing successfully */
    return ret;
 }
 #endif
