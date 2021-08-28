@@ -14,7 +14,7 @@
 int pm_init_hash(const char *hash_file)
 {
    char *passwd = NULL, *verification_passwd = NULL;
-   char *hash;
+   char *hash = NULL;
 
    /* Ask the user the password twice to make sure it's the correct one. */
    /* TODO: Password validation */
@@ -25,8 +25,13 @@ int pm_init_hash(const char *hash_file)
    verification_passwd = ask_pass();
 
    /* The passwords are not the same */
-   if (strcmp(passwd, verification_passwd))
+   if (strcmp(passwd, verification_passwd)) {
+      free(passwd);
+      free(verification_passwd);
+
+      putchar('\n');
       return -1;
+   }
 
    /*
     * If the user has entered a valid password that same password is being

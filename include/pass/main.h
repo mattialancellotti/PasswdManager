@@ -8,6 +8,17 @@
 #define YELLOW "\x1b[33m"
 #define RESET "\x1b[0m"
 
+#define NO_HASH "You should initialize the new database before using the " \
+                "pogram.\nTo do so type 'ezpass --init' and follow the "   \
+                "instructions."
+
+#define PASSWDS "There are still saved passwords in your database and " \
+                "by re-initiating it you will lose all of them.\n"      \
+                "Are you sure you want to continue? [y/N] "
+
+#define NO_INIT "Something went wrong during the initializaiton but all your" \
+                " passwords are still there."
+
 #define DEFAULT_PASSWD_SIZE 8
 
 typedef struct {

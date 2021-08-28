@@ -57,32 +57,7 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
 
-#if defined(_HAVE_SODIUM)
-   /*
-    * Generating entropy and preparing some other things.
-    * I'd recommend to take a look at https://doc.libsodium.org/usage to know
-    * more about this library and its machanisms.
-    */
-   if (sodium_init() < 0) {
-      /* Something really bad happened */
-      fprintf(stderr, "Couldn't initiate the entropy.\n");
-      return EXIT_FAILURE;
-   }
-#endif
-
-#if defined(_IS_EXPERIMENTAL)
-   program_root = absolute_path(PROG_ROOT ROOT_PATH);
-   program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
-   program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
-   prog_err(atexit(free_files), "Couln't set exit function.", _Exit(EXIT_FAILURE));
-
-   /* init */
-   int err_path = pm_init_path();
-   prog_err(err_path, "Couldn't create the program's db.", return EXIT_FAILURE);
-
-#endif
-
-   /* 
+   /*  TODO: update this
     * This struct rapresent a configuration block with the properties of a
     * password. The generated password should follow those properties.
     *
@@ -113,24 +88,68 @@ int main(int argc, char **argv)
       /* All other actions are ignored in this case */
       return EXIT_SUCCESS;
    }
-   
-   /* TODO: Check if the hash file exists before anything else */
-#if defined(_IS_EXPERIMENTAL)
-   if (config_file.init) {
-      /* 
-       * There is no reset mechanism here other than forcing the user into
-       * calling the program a second time with the --reset argument. This is
-       * mainly due to lazyness and security/awareness seemed to be a good
-       * excuse.
-       */
-      if (!is_empty(program_db))
-         pm_init_hash(program_hash);
-      else
-         fprintf(stderr, "Use the option --reset if you really "
-                         "want to delete all your saved passwords.\n");
 
+#if defined(_HAVE_SODIUM)
+   /*
+    * Generating entropy and preparing some other things.
+    * I'd recommend to take a look at https://doc.libsodium.org/usage to know
+    * more about this library and its machanisms.
+    */
+   if (sodium_init() < 0) {
+      /* Something really bad happened */
+      fprintf(stderr, "Couldn't initiate the entropy.\n");
+      return EXIT_FAILURE;
+   }
+#endif
+
+#if defined(_IS_EXPERIMENTAL)
+   program_root = absolute_path(PROG_ROOT ROOT_PATH);
+   program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
+   program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   prog_err(atexit(free_files), "Couln't set exit function.", _Exit(EXIT_FAILURE));
+
+   /* init */
+   int err_path = pm_init_path();
+   warn_user(err_path, "Couldn't create the program's db.", EXIT_FAILURE);
+
+   /*
+    * Long story short if the user is initializing a new hash with
+    * a non-empty database he'll be asked whether to continue or not.
+    */
+   if (check_flag(config_file.init)) {
+      if (!is_empty(program_db)) {
+         printf("Initializing the new database of passwords.\n");
+
+         /* Checking if the initialization worked */
+         warn_user((pm_init_hash(program_hash) == -1),
+                     "Couldn't complete the initialization.\n", EXIT_FAILURE);
+         
+         /* Telling the user everything worked out */
+         printf("Initializationg completed.\n");
+         return EXIT_SUCCESS;
+      }
+
+      /*
+       * If the user is calling 'ezpass --init' on a non-empty ask him if he
+       * wants to delete all the saved passwords by re-initializing the
+       * database.
+       */
+      if (confirm_identity(program_hash)) return EXIT_FAILURE;
+      if (ask_confirmation(PASSWDS) == 'y') {
+         /* Re-initializing the hash and deleting the old passwords */
+         warn_user((pm_init_hash(program_hash) == -1), NO_INIT, EXIT_FAILURE);
+         exit_if((pm_purge_db(program_db) == -1), EXIT_FAILURE);
+
+         /* If everything went as planned just notify the user and exit */
+         printf("All your passwords are gone and your database is now clear.\n");
+      }
+
+      /* This option intentionally ignores every other option */
       return EXIT_SUCCESS;
    }
+
+   /* If there is no hash to verify notify the user and eixt */
+   warn_user((!exists(program_hash)), NO_HASH, EXIT_FAILURE);
 
    /*
     * All the action handling except for `--init` should stay after the
@@ -162,8 +181,6 @@ int main(int argc, char **argv)
       if (config_file.gen == true)
          passwd = create_passwd(config_file.length, 
                                  config_file.char_not_admitted);
-
-
    } else if (config_file.gen) {
       /* Temporary way of generating passwords */
    }
@@ -189,9 +206,8 @@ void help()
       "\t-t, --times       : To specify how many password you need.\n"
       "  Actions:\n"
       "\t    --stats       : Analyzes the password.\n"
-      "\t    --reset       : Clears the database from passwords.\n"
+      "\t    --purge       : Clears the database from passwords.\n"
       "\t    --init        : Used to initiate a new databased of passwords.\n"
-      "\t    --delete      : Can be used to delete a password.\n"
       "\t    --generate    : Generates a password based on the specific arguments.\n"
       "  Program:\n"
       "\t    --help        : Shows this message.\n"
