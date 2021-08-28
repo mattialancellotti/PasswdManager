@@ -159,11 +159,6 @@ int main(int argc, char **argv)
       /* Tells the others that I failed :-( */
       return EXIT_FAILURE;
 
-   /* Handling resetting */
-   if (config_file.res) {
-      /* TODO: implement a rmpath that does rm recursively */
-   }
-
    /* All the other actions [--stat, --generate ] are 'service' specific */
    char *passwd = NULL;
    if (config_file.service != NULL) {
