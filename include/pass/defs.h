@@ -9,6 +9,7 @@
 #define HELP 00000010
 #define VERS 00000001
 
+#define check_flag(flag) (flag)
 #define emptyness(bitarr, bitcount) ((bitarr >> bitcount) == 0)
 #define check_bit(bitarr, bitpos) (bitarr & bitpos)
 #define set_bit(bitarr, bitpos) (bitarr |= bitpos)
@@ -31,9 +32,11 @@
       action; \
    }
 
-#define warn_user(condition, msg); \
-   if (condition) \
-      fprintf(stderr, msg);
+#define warn_user(condition, msg, exit_code); \
+   if (condition) { \
+      fprintf(stderr, "%s\n", msg); \
+      return exit_code; \
+   }
 
 /* Use the same do_if/exit_if as the BrainFuck Interpreter */
 #define exit_if(condition, code); \
