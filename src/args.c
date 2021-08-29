@@ -64,6 +64,7 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
          return -1;
       case 's':
          config_file->service = optarg;
+         set_bit(success, SERV);
          break;
       case 'l':
          /* Sets the length of the password */
@@ -95,7 +96,6 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
    }
 
    /* Returns successfully */
-   set_bit(success, (config_file->service ? SERV : 0));
    set_bit(success, (strict_bit(show, SHOW)));
    set_bit(success, (strict_bit(gen,  GENE)));
    set_bit(success, (strict_bit(stat, STAT)));
