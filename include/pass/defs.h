@@ -6,10 +6,20 @@
 #define PASS_HASH "passwd"
 #define PASS_DB   "db/"
 
+#define PURG 00010001
+#define GENE 00010000
+#define STAT 00001010
+#define SHOW 00001001
+#define SERV 00001000
+
+#define INIT 00000100
+
 #define HELP 00000010
 #define VERS 00000001
 
 #define check_flag(flag) (flag)
+#define strict_bit(bitarr, bitpos) ((bitarr & bitpos) == bitpos ? bitpos : 0)
+#define strict_check(bitarr, bitpos) ((bitarr & bitpos) == bitpos)
 #define emptyness(bitarr, bitcount) ((bitarr >> bitcount) == 0)
 #define check_bit(bitarr, bitpos) (bitarr & bitpos)
 #define set_bit(bitarr, bitpos) (bitarr |= bitpos)
