@@ -14,15 +14,14 @@
 
 #define INIT 00000100
 
-#define HELP 00000010
-#define VERS 00000001
+#define HELP 01000000
+#define VERS 00100000
 
 #define check_flag(flag) (flag)
-#define strict_bit(bitarr, bitpos) ((bitarr & bitpos) == bitpos ? bitpos : 0)
 #define strict_check(bitarr, bitpos) ((bitarr & bitpos) == bitpos)
-#define emptyness(bitarr, bitcount) ((bitarr >> bitcount) == 0)
 #define check_bit(bitarr, bitpos) (bitarr & bitpos)
 #define set_bit(bitarr, bitpos) (bitarr |= bitpos)
+#define reset_bit(bitarr, bitpos) (bitarr = bitpos)
 
 #define ifdef_free(var); \
    if (var != NULL) { \

@@ -96,15 +96,14 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
    }
 
    /* Returns successfully */
-   set_bit(success, (strict_bit(show, SHOW)));
-   set_bit(success, (strict_bit(gen,  GENE)));
-   set_bit(success, (strict_bit(stat, STAT)));
-   set_bit(success, (strict_bit(res,  PURG)));
-
-   set_bit(success, ((success & ~success) | init));
+   set_bit(success, show);
+   set_bit(success, stat);
+   set_bit(success, gen );
+   set_bit(success, res );
 
    /* These two have the priority over the previous ones */
-   set_bit(success, ((success & ~success) | (use | vers)));
+   set_bit(success, init);
+   set_bit(success, (use | vers));
 
    return success;
 }
