@@ -44,6 +44,7 @@ static char *program_hash;
 static char *program_db;
 
 /* TODO: doc */
+static int init_prog_env(void);
 static int confirm_identity(const char* /*program_hash*/);
 static void free_files(void);
 
@@ -102,14 +103,7 @@ int main(int argc, char **argv)
 #endif
 
 #if defined(_IS_EXPERIMENTAL)
-   program_root = absolute_path(PROG_ROOT ROOT_PATH);
-   program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
-   program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
-   prog_err(atexit(free_files), "Couln't set exit function.", _Exit(EXIT_FAILURE));
-
-   /* init */
-   int err_path = pm_init_path();
-   warn_user(err_path, "Couldn't create the program's db.", EXIT_FAILURE);
+   exit_if(init_prog_env(), EXIT_FAILURE);
 
    /*
     * Long story short if the user is initializing a new hash with
@@ -179,13 +173,6 @@ int main(int argc, char **argv)
    if (config_file.service != NULL) {
       /* TODO: check if pm_create_service failed */
       int spm_err = pm_create_service(config_file.service);
-
-      /* Checking if the password for the service needs to be generated or not */
-      /*
-      if (config_file.gen == true)
-         passwd = create_passwd(config_file.length, 
-                                 config_file.char_not_admitted);
-                                 */
    }
 
    ifdef_free(passwd);
@@ -219,6 +206,20 @@ void help()
 }
 
 #if defined(_IS_EXPERIMENTAL)
+static int init_prog_env(void)
+{
+   program_root = absolute_path(PROG_ROOT ROOT_PATH);
+   program_hash = absolute_path(PROG_ROOT ROOT_PATH PASS_HASH);
+   program_db   = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   prog_err(atexit(free_files), "Couldn't set exit function.", _Exit(EXIT_FAILURE));
+
+   /* init */
+   int err_path = pm_init_path();
+   warn_user(err_path, "Couldn't create the program's db.", EXIT_FAILURE);
+
+   return 0;
+}
+
 static int confirm_identity(const char *program_hash)
 {
    /* Getting the actual hash from the file */
