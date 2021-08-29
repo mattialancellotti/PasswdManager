@@ -16,6 +16,8 @@
                 "by re-initiating it you will lose all of them.\n"      \
                 "Are you sure you want to continue? [y/N] "
 
+#define PURGE_P "Are you sure you want to delete all your passwords? [y/N] "
+
 #define NO_INIT "Something went wrong during the initializaiton but all your" \
                 " passwords are still there."
 
@@ -27,16 +29,6 @@ typedef struct {
    struct {
       size_t length, times;
       unsigned char_not_admitted;
-   };
-
-   struct {
-      bool res   : 1;
-      bool init  : 1;
-      bool gen   : 1;
-      bool del   : 1;
-      bool stat  : 1;
-      bool show  : 1;
-      unsigned   : 2;
    };
 } service_t;
 

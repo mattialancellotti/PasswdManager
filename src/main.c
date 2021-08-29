@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     * It has default options useful to the `handle_args` function.
     */
    service_t config_file = { 
-      .service = NULL,
+      .service = "/dev/stdout",
       .length = DEFAULT_PASSWD_SIZE,
       .times  = 1,
       .char_not_admitted = 0,
@@ -72,13 +72,12 @@ int main(int argc, char **argv)
 
    /* TODO:
     *  - Create a list of errors (take a look at the OSH project);
-    *  - This piece of code produces memory leak if _IS_EXPERIMENTAL is enabled.
     */
    /* Handling arguments */
    int success = handle_args(argc, argv, &config_file);
    if (success == -1)
       return EXIT_FAILURE;
-   else if (check_bit(success, (HELP|VERS))) {
+   else if (emptyness(success, HELP) && check_bit(success, (HELP|VERS))) {
       /* Checking which function needs to be called */
       if (check_bit(success, HELP))
          (void) help();
@@ -116,7 +115,7 @@ int main(int argc, char **argv)
     * Long story short if the user is initializing a new hash with
     * a non-empty database he'll be asked whether to continue or not.
     */
-   if (check_flag(config_file.init)) {
+   if (strict_check(success, INIT)) {
       if (!is_empty(program_db)) {
          printf("Initializing the new database of passwords.\n");
 
@@ -159,25 +158,34 @@ int main(int argc, char **argv)
       /* Tells the others that I failed :-( */
       return EXIT_FAILURE;
 
+   if (strict_check(success, PURG)) {
+      if (strict_check(success, (PURG|SERV))) {
+         /* Should purge the specified service */
+         printf("Should purge the service %s.\n", config_file.service);
+         return EXIT_SUCCESS;
+      }
+
+      /* This action will only purge the passwords saved in the database */
+      if (ask_confirmation(PURGE_P) == 'y') {
+         exit_if((pm_purge_db(program_db) == -1), EXIT_FAILURE);
+      } else
+         printf("No password was harmed in the process. :)\n");
+
+      return EXIT_SUCCESS;
+   }
+
    /* All the other actions [--stat, --generate ] are 'service' specific */
    char *passwd = NULL;
    if (config_file.service != NULL) {
       /* TODO: check if pm_create_service failed */
       int spm_err = pm_create_service(config_file.service);
-      if (spm_err == -1) {
-         fprintf(stderr, "ezpass was unable to complete the operation "
-                         "due to an unexpected error.\n");
-         return EXIT_FAILURE;
-      } else if (spm_err == 1)
-         return EXIT_SUCCESS;
 
-      /* TODO: Implement stats, generate e show */
       /* Checking if the password for the service needs to be generated or not */
+      /*
       if (config_file.gen == true)
          passwd = create_passwd(config_file.length, 
                                  config_file.char_not_admitted);
-   } else if (config_file.gen) {
-      /* Temporary way of generating passwords */
+                                 */
    }
 
    ifdef_free(passwd);
