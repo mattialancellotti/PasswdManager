@@ -17,6 +17,7 @@ static int get_flags(char* /*str*/);
 /* options flags */
 static int vers = 0, use = 0;
 static int init = 0, res = 0;
+static int stat = 0, show = 0, gen = 0;
 
 /*
  * Declaring arguments.
@@ -28,24 +29,19 @@ static int init = 0, res = 0;
  *
  *    Read `man getopt.3`;
  */
-/*
- * TODO:
- *    - Add `generate|g` to generate a password;
- *    - Add `show|S` to show the password(s) for that service;
- */
 static const struct option options[] = {
    {"not-admitted", required_argument, 0, 'n'},
    {"service",      required_argument, 0, 's'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
-   {"generate",     no_argument,       0, 'g'},
-   {"stats",        no_argument,       0, 'T'},
-   {"show",         no_argument,       0, 'S'},
-   {"purge",        no_argument,      &res,  true },
-   {"init",         no_argument,      &init, true },
-   {"help",         no_argument,      &use,  HELP },
-   {"version",      no_argument,      &vers, VERS },
-   {0,              0,                 0,       0 }
+   {"generate",     no_argument,      &gen,  GENE},
+   {"stats",        no_argument,      &stat, STAT},
+   {"show",         no_argument,      &show, SHOW},
+   {"purge",        no_argument,      &res,  PURG},
+   {"init",         no_argument,      &init, INIT},
+   {"help",         no_argument,      &use,  HELP},
+   {"version",      no_argument,      &vers, VERS},
+   {0,              0,                 0,       0}
 };
 
 int handle_args(const int argc, char **argv, service_t * const config_file)
@@ -66,10 +62,9 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
       case '?':
          /* Unsuccessfull matching */
          return -1;
-      case 'g': set_bit(config_file->gen,  true); break;
-      case 'T': set_bit(config_file->stat, true); break;
-      case 'S': set_bit(config_file->show, true); break;
-      case 's': config_file->service = optarg;    break;
+      case 's':
+         config_file->service = optarg;
+         break;
       case 'l':
          /* Sets the length of the password */
          if ((length = (size_t)atoi(optarg)) && length >= PASSWD_MIN_LENGTH 
@@ -100,8 +95,13 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
    }
 
    /* Returns successfully */
-   set_bit(config_file->init, (check_bit(init, true)));
-   set_bit(config_file->res,  (check_bit(res,  true)));
+   set_bit(success, (config_file->service ? SERV : 0));
+   set_bit(success, (strict_bit(show, SHOW)));
+   set_bit(success, (strict_bit(gen,  GENE)));
+   set_bit(success, (strict_bit(stat, STAT)));
+   set_bit(success, (strict_bit(res,  PURG)));
+
+   set_bit(success, ((success & ~success) | init));
 
    /* These two have the priority over the previous ones */
    set_bit(success, ((success & ~success) | (use | vers)));
