@@ -78,7 +78,7 @@ int main(int argc, char **argv)
    int success = handle_args(argc, argv, &config_file);
    if (success == -1)
       return EXIT_FAILURE;
-   else if (emptyness(success, HELP) && check_bit(success, (HELP|VERS))) {
+   else if (check_bit(success, (HELP|VERS))) {
       /* Checking which function needs to be called */
       if (check_bit(success, HELP))
          (void) help();
@@ -170,9 +170,10 @@ int main(int argc, char **argv)
 
    /* All the other actions [--stat, --generate ] are 'service' specific */
    char *passwd = NULL;
-   if (config_file.service != NULL) {
-      /* TODO: check if pm_create_service failed */
-      int spm_err = pm_create_service(config_file.service);
+   if (strict_check(success, GENE)) {
+      passwd = create_passwd(config_file.length,
+                                    config_file.char_not_admitted);
+      printf("%s\n", passwd);
    }
 
    ifdef_free(passwd);
