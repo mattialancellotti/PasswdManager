@@ -57,3 +57,7 @@ stow:
 	cp -r $(BINDIR) $(STOWDIR)
 	stow --dir=/usr/local/stow --target=/usr/local --stow $(BINARY)
 	@echo Successfully stowed $(STOWDIR).
+
+docker:
+	docker build -t ezpass-app .
+	docker run -it ezpass-app
