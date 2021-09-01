@@ -35,6 +35,7 @@ char *absolute_path(const char* /*file_name*/);
  */
 int mkpath(const char* /*path*/, const char* /*absolute_path*/);
 
+int rmfile(const char* /*file_path*/);
 int rmpath(const char* /*path*/);
 
 /*

@@ -103,6 +103,14 @@ int mkpath(const char *path, const char *absolute_path)
    return 0;
 }
 
+int rmfile(const char *file_path)
+{
+   prog_err((file_path == NULL), "The specified file is not valid.", return -1);
+   system_err((unlink(file_path) == -1), "unlink", -1);
+
+   return 0;
+}
+
 int rmpath(const char *path)
 {
    prog_err((path == NULL), "The specified path is not valid.", return -1);
