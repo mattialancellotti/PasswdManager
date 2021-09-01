@@ -1,18 +1,5 @@
 #define _XOPEN_SOURCE 500
 
-/*
- * TODO:
- *    # Urgent
- *    - Include "password encryption/decryption"
- *
- *    # Project configuration
- *    - Create a TODO file so that I can plan what it is to be done in order to
- *      get the program always to a usable state.
- *    
- *    # Features
- *    - Encrypts those passwords with sodium/libgcrypt.
- *    - Default action will be to print help message.
- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -154,8 +141,10 @@ int main(int argc, char **argv)
 
    if (strict_check(success, PURG)) {
       if (strict_check(success, (PURG|SERV))) {
-         /* Should purge the specified service */
-         printf("Should purge the service %s.\n", config_file.service);
+         /* Purge the specified service */
+         exit_if((pm_delete_service(config_file.service) == -1), EXIT_FAILURE);
+         printf("Service '%s' successfully deleted.\n", config_file.service);
+
          return EXIT_SUCCESS;
       }
 
@@ -170,10 +159,15 @@ int main(int argc, char **argv)
 
    /* All the other actions [--stat, --generate ] are 'service' specific */
    char *passwd = NULL;
-   if (strict_check(success, GENE)) {
+   if (strict_check(success, (GENE|SERV))) {
       passwd = create_passwd(config_file.length,
                                     config_file.char_not_admitted);
-      printf("%s\n", passwd);
+      int uerr = pm_update_service(config_file.service, passwd);
+      exit_if((uerr == -1), EXIT_FAILURE);
+   } else if (strict_check(success, GENE)) {
+      passwd = create_passwd(config_file.length,
+                                    config_file.char_not_admitted);
+      printf("Password: %s\n", passwd);
    }
 
    ifdef_free(passwd);

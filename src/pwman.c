@@ -154,3 +154,82 @@ no_service:
 
    return exit_status;
 }
+
+int pm_update_service(const char *service_name, const char *content)
+{
+   prog_err((service_name == NULL), "Specify a valid service.", return -1);
+   prog_err((content == NULL), "Specify a valid content.", return -1);
+   
+   /* Variables */
+   int exit_status = 0;
+   const char *msg = "The specified service doesn't exists yet.\n"
+                     "Would you like to create it now? [y/N] ";
+
+   /* Creating the service */
+   char *program_db = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   char *db_service = malloc(strlen(program_db) + strlen(service_name) + 1);
+   db_service = strcat(strcpy(db_service, program_db), service_name);
+
+   /* 
+    * Important: checks if the service exists (don't wanna do this in the main
+    * file since it causes a lot output (code)).
+    */
+   if (!exists(db_service)) {
+      if (ask_confirmation(msg) == 'n') {
+         printf("Creation of the service '%s' interrupted.\n", service_name);
+         exit_status = 1;
+         goto no_update;
+      }
+
+      int perr = pm_create_service(service_name);
+      exit_if((perr == -1), -1);
+   }
+
+   /* Opening the file */
+   file_t *service_file = mopen(db_service);
+   exit_if((service_file == NULL), -1);
+   
+   /* Writing the content to da service */
+   int werr = cwrite(service_file->fd, content);
+   prog_err((werr == -1), "Couldn't update the service.", return -1);
+
+   /* Closing the file */
+   int cerr = mclose(service_file);
+   prog_err((cerr == -1), "Couldn't close the service.", return -1);
+
+   printf("New password configured for service %s.\n", service_name);
+no_update:
+   free(program_db);
+   free(db_service);
+
+   return exit_status;
+}
+
+int pm_delete_service(const char *service_name)
+{
+   prog_err((service_name == NULL), "Specify a valid service.", return -1);
+   int exit_status = 0;
+
+   char *program_db = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   char *db_service = malloc(strlen(program_db) + strlen(service_name) + 1);
+   db_service = strcat(strcpy(db_service, program_db), service_name);
+
+   /* Checking if the service exists */
+   if (!exists(db_service)) {
+      fprintf(stderr, "The specified service '%s',"
+                      " doesn't really exists.\n", service_name);
+
+      exit_status = -1;
+      goto no_delete;
+   }
+
+   /* Deleting the actual file */
+   int cerr = rmfile(db_service);
+   prog_err((cerr == -1), "Couldn't delete the file.", return -1);
+
+no_delete:
+   free(program_db);
+   free(db_service);
+
+   return exit_status;
+}
