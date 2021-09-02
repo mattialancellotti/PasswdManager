@@ -23,8 +23,11 @@
 
 #define DEFAULT_PASSWD_SIZE 8
 
+enum ACTIONS { CREAT, SHOW, PURG, LIST, EMPTY };
+
 typedef struct {
    char *service;
+   enum ACTIONS action;
 
    struct {
       size_t length, times;

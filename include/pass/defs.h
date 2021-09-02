@@ -6,16 +6,16 @@
 #define PASS_HASH "passwd"
 #define PASS_DB   "db/"
 
-#define PURG 00010001
-#define GENE 00010000
-#define STAT 00001010
-#define SHOW 00001001
-#define SERV 00001000
+extern int behaviour;
 
-#define INIT 00000100
+#define INIT 00001111
+#define VERB 00000100
+#define STAT 00000010
+#define ASK  00000001
 
 #define HELP 01000000
 #define VERS 00100000
+#define GENE 00010000
 
 #define check_flag(flag) (flag)
 #define strict_check(bitarr, bitpos) ((bitarr & bitpos) == bitpos)

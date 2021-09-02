@@ -15,9 +15,10 @@
 static int get_flags(char* /*str*/);
 
 /* options flags */
-static int vers = 0, use = 0;
-static int init = 0, res = 0;
-static int stat = 0, show = 0, gen = 0;
+static int vers = 0, use = 0, init = 0;
+static int stat = 0, ask = 0, verb = 0;
+
+int behaviour = 0;
 
 /*
  * Declaring arguments.
@@ -30,14 +31,20 @@ static int stat = 0, show = 0, gen = 0;
  *    Read `man getopt.3`;
  */
 static const struct option options[] = {
+   /* Service handling options */
+   {"create",       required_argument, 0, 'c'},
+   {"show",         required_argument, 0, 's'},
+   {"purge",        optional_argument, 0, 'p'},
+   {"list",         required_argument, 0, 'L'},
+   /* Passwd creation */
    {"not-admitted", required_argument, 0, 'n'},
-   {"service",      required_argument, 0, 's'},
    {"length",       required_argument, 0, 'l'},
    {"times",        required_argument, 0, 't'},
-   {"generate",     no_argument,      &gen,  GENE},
+   {"generate",     no_argument,       0, 'G'},
+   /* Program's behaviour */
    {"stats",        no_argument,      &stat, STAT},
-   {"show",         no_argument,      &show, SHOW},
-   {"purge",        no_argument,      &res,  PURG},
+   {"ask",          no_argument,      &ask,  ASK },
+   {"verbose",      no_argument,      &verb, VERB},
    {"init",         no_argument,      &init, INIT},
    {"help",         no_argument,      &use,  HELP},
    {"version",      no_argument,      &vers, VERS},
@@ -51,7 +58,7 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
 
    /* Parsing arguments using getopt_long(..), check man getopt.3 */
    while (1) {
-      c = getopt_long(argc, argv, "l:n:t:s:", options, &option_index);
+      c = getopt_long(argc, argv, "LGc:p::l:n:t:s:", options, &option_index);
       if (c == -1)
          break;
 
@@ -62,9 +69,28 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
       case '?':
          /* Unsuccessfull matching */
          return -1;
+      case 'c':
+         config_file->service = optarg;
+         config_file->action  = CREAT;
+         break;
       case 's':
          config_file->service = optarg;
-         set_bit(success, SERV);
+         config_file->action  = SHOW;
+         break;
+      case 'p':
+         if (optarg == NULL && optind < argc && argv[optind][0] != '-')
+            config_file->service = argv[optind++];
+         else
+            config_file->service = optarg;
+
+         config_file->action  = PURG;
+         break;
+      case 'L':
+         config_file->service = NULL;
+         config_file->action  = LIST;
+         break;
+      case 'G':
+         set_bit(success, GENE);
          break;
       case 'l':
          /* Sets the length of the password */
@@ -95,13 +121,10 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
       }
    }
 
-   /* Returns successfully */
-   set_bit(success, show);
+   set_bit(success, ask);
    set_bit(success, stat);
-   set_bit(success, gen );
-   set_bit(success, res );
+   set_bit(success, verb);
 
-   /* These two have the priority over the previous ones */
    set_bit(success, init);
    set_bit(success, (use | vers));
 

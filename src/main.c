@@ -24,6 +24,7 @@
 #  include <pass/os.h>
 #  include <pass/crypto.h>
 #  include <pass/pwman.h>
+#  include <pass/stats.h>
 
 /* The program's main files */
 static char *program_root;
@@ -52,7 +53,8 @@ int main(int argc, char **argv)
     * It has default options useful to the `handle_args` function.
     */
    service_t config_file = { 
-      .service = "/dev/stdout",
+      .service = NULL,
+      .action = EMPTY,
       .length = DEFAULT_PASSWD_SIZE,
       .times  = 1,
       .char_not_admitted = 0,
@@ -92,6 +94,7 @@ int main(int argc, char **argv)
 #if defined(_IS_EXPERIMENTAL)
    exit_if(init_prog_env(), EXIT_FAILURE);
 
+   printf("%d\n", success);
    /*
     * Long story short if the user is initializing a new hash with
     * a non-empty database he'll be asked whether to continue or not.
@@ -128,6 +131,20 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
 
+   /* Checking if the user just wants to generate a new password */
+   if (strict_check(success, GENE) && config_file.service == NULL) {
+      char *passwd = create_passwd(config_file.length,
+                                       config_file.char_not_admitted);
+      printf("Password: %s\n", passwd);
+
+      /* Printing stats about the password */
+      if (check_bit(success, STAT))
+         (void) passwd_stats(passwd);
+
+      free(passwd);
+      return EXIT_SUCCESS;
+   }
+
    /* If there is no hash to verify notify the user and eixt */
    warn_user((!exists(program_hash)), NO_HASH, EXIT_FAILURE);
 
@@ -139,13 +156,34 @@ int main(int argc, char **argv)
       /* Tells the others that I failed :-( */
       return EXIT_FAILURE;
 
-   if (strict_check(success, PURG)) {
-      if (strict_check(success, (PURG|SERV))) {
-         /* Purge the specified service */
-         exit_if((pm_delete_service(config_file.service) == -1), EXIT_FAILURE);
-         printf("Service '%s' successfully deleted.\n", config_file.service);
+   int err = 0;
+   switch (config_file.action) {
+   case CREAT:
+      /* Creating a new service called `config_file.service` */
+      err = pm_create_service(config_file.service);
+      exit_if((err == -1), EXIT_FAILURE);
 
-         return EXIT_SUCCESS;
+      /* Updating the password */
+      if (strict_check(success, GENE)) {
+         char *passwd = create_passwd(config_file.length,
+                                       config_file.char_not_admitted);
+         err = pm_update_service(config_file.service, passwd);
+         exit_if((err == -1), EXIT_FAILURE);
+      } else {
+      }
+
+      /* Informing the user about the success */
+      printf("Service '%s' created.\n", config_file.service);
+      break;
+   case PURG:
+      /* Checking if an argument has been supplied to purge */
+      if (config_file.service != NULL) {
+         /* Purge the specified service */
+         err = pm_delete_service(config_file.service);
+         exit_if((err == -1), EXIT_FAILURE);
+         printf("Service '%s' deleted.\n", config_file.service);
+
+         break;
       }
 
       /* This action will only purge the passwords saved in the database */
@@ -154,23 +192,15 @@ int main(int argc, char **argv)
       } else
          printf("No password was harmed in the process. :)\n");
 
-      return EXIT_SUCCESS;
+      break;
+   case SHOW:
+   case LIST:
+   case EMPTY:
+   default:
+      (void) help();
+      break;
    }
 
-   /* All the other actions [--stat, --generate ] are 'service' specific */
-   char *passwd = NULL;
-   if (strict_check(success, (GENE|SERV))) {
-      passwd = create_passwd(config_file.length,
-                                    config_file.char_not_admitted);
-      int uerr = pm_update_service(config_file.service, passwd);
-      exit_if((uerr == -1), EXIT_FAILURE);
-   } else if (strict_check(success, GENE)) {
-      passwd = create_passwd(config_file.length,
-                                    config_file.char_not_admitted);
-      printf("Password: %s\n", passwd);
-   }
-
-   ifdef_free(passwd);
 #endif
 
    return EXIT_SUCCESS;
@@ -184,6 +214,7 @@ void help()
       "ezPass - Password Manager & Password Generator\n\n"
       "  Password Manager:\n"
       "\t-s, --service     : Specifies the name of the service.\n"
+      "\t    --init        : Used to initiate a new databased of passwords.\n"
       "  Password Generator:\n"
       "\t-l, --length      : To specify the length of the password.\n"
       "\t-n, --not-admitted: To specify which type of character is not\n"
@@ -192,7 +223,6 @@ void help()
       "  Actions:\n"
       "\t    --stats       : Analyzes the password.\n"
       "\t    --purge       : Clears the database from passwords.\n"
-      "\t    --init        : Used to initiate a new databased of passwords.\n"
       "\t    --generate    : Generates a password based on the specific arguments.\n"
       "  Program:\n"
       "\t    --help        : Shows this message.\n"
