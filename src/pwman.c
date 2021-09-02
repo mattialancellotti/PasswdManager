@@ -155,6 +155,34 @@ no_service:
    return exit_status;
 }
 
+int pm_read_service(const char *service_name)
+{
+   prog_err((service_name == NULL), "Specify a valid service.", return -1);
+   int exit_status = 0;
+
+   /* Creating the service */
+   char *program_db = absolute_path(PROG_ROOT ROOT_PATH PASS_DB);
+   char *db_service = malloc(strlen(program_db) + strlen(service_name) + 1);
+   db_service = strcat(strcpy(db_service, program_db), service_name);
+
+   if (!exists(db_service)) {
+      fprintf(stderr, "The specified service doesn't exists.\n");
+      exit_status = -1;
+      goto no_read;
+   }
+
+   file_t *file = mopen(db_service);
+   prog_err((file == NULL), "Couldn't read the service.", goto no_read);
+
+   printf("Password: %s\n", file->file_content);
+
+   int cerr = mclose(file);
+no_read:
+   free(program_db);
+   free(db_service);
+   return exit_status;
+}
+
 int pm_update_service(const char *service_name, const char *content)
 {
    prog_err((service_name == NULL), "Specify a valid service.", return -1);
