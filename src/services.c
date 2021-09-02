@@ -7,12 +7,17 @@
 #include <pass/os.h>
 #include <pass/main.h>
 
+/*
+ * This function takes a @service_name and concatenates it with the full
+ * database path provided in include/pass/defs.h in pieces.
+ *
+ * @return The full path of the service, NULL otherwise.
+ */
 static char *service_absolute(const char* /*service_name*/);
 
 /*
  * TODO:
  *  - Error list;
- *  - `extern db_path`
  */
 int create_service(const char *service_name)
 {
