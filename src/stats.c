@@ -20,7 +20,6 @@ void passwd_stats(const char *passwd)
 }
 
 /* TODO:
- *  - Create a find_enum function to find the correct enum var for a variable;
  *  - Create a function to calculate how safe is a password;
  */
 #define type_of(check_var, var_type, inc_var) \

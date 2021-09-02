@@ -2,7 +2,6 @@
 #define STATS_H
 
 #include <stddef.h>
-#include <pass/main.h>
 
 /* This is where the password is stored along with some information about it */
 typedef struct {
