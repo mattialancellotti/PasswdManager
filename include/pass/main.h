@@ -1,12 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <stdbool.h>
 #include <stddef.h>
-
-#define RED "\x1b[31m"
-#define YELLOW "\x1b[33m"
-#define RESET "\x1b[0m"
 
 #define NO_HASH "You should initialize the new database before using the " \
                 "pogram.\nTo do so type 'ezpass --init' and follow the "   \

@@ -1,6 +1,10 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define RED "\x1b[31m"
+#define YELLOW "\x1b[33m"
+#define RESET "\x1b[0m"
+
 #define PROG_ROOT ".local/share/"
 #define ROOT_PATH "ezpass/"
 #define PASS_HASH "passwd"
