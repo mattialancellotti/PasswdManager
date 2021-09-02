@@ -46,25 +46,25 @@ void check_passwd(passwd_t **passwd_created) {
          already_used[arr_i++] = tmp;
 
       if (isdigit(tmp)) {
-         type_of(last_c, DIGIT, (*passwd_created)->consecutive_digit);
+         type_of(last_c, DIGIT, (*passwd_created)->cons_digit);
          (*passwd_created)->number_digit++;
 
 	 if (res != -1)
 	    (*passwd_created)->repeated_digit++;
       } else if (islower(tmp)) {
-         type_of(last_c, L_CHAR, (*passwd_created)->consecutive_l_char);
+         type_of(last_c, L_CHAR, (*passwd_created)->cons_l_char);
 	 (*passwd_created)->number_l_char++;
 
 	 if (res != -1)
 	    (*passwd_created)->repeated_l_char++;
       } else if (isupper(tmp)) {
-         type_of(last_c, L_CHAR, (*passwd_created)->consecutive_u_char);
+         type_of(last_c, L_CHAR, (*passwd_created)->cons_u_char);
 	 (*passwd_created)->number_u_char++;
 
 	 if (res != -1)
 	    (*passwd_created)->repeated_u_char++;
       } else {
-         type_of(last_c, L_CHAR, (*passwd_created)->consecutive_sign);
+         type_of(last_c, L_CHAR, (*passwd_created)->cons_sign);
 	 (*passwd_created)->number_sign++;
 
 	 if (res != -1)
@@ -75,12 +75,27 @@ void check_passwd(passwd_t **passwd_created) {
 
 /* You really have to make this look better */
 void print(const passwd_t *passwd_info) {
-	printf("\n%s===CONSECUTIVE CHARACTERS===%s\n", RED, RESET);
-	printf("\t| Consecutive upper case chars: %d\n\t| Consecutive lower case chars: %d\n\t| Consecutive digits: %d\n\t| Consecutive signs: %d\n", passwd_info->consecutive_u_char, passwd_info->consecutive_l_char, passwd_info->consecutive_digit, passwd_info->consecutive_sign);
-	printf("\n%s===REPEATED CHARACTERS===%s\n", RED, RESET);
-	printf("\t| Repeated upper case chars: %d\n\t| Repeated lower case chars: %d\n\t| Repeated digits: %d\n\t| Repeated signs: %d\n", passwd_info->repeated_u_char, passwd_info->repeated_l_char, passwd_info->repeated_digit, passwd_info->repeated_sign);
-	printf("\n%s===NUMBER OF EACH TYPE===%s\n", RED, RESET);
-	printf("\t| Number of upper case chars: %d\n\t| Number of lower case chars: %d\n\t| Number of digits: %d\n\t| Number of signs: %d\n", passwd_info->number_u_char, passwd_info->number_l_char, passwd_info->number_digit, passwd_info->number_sign);
+   printf("\n%s===CONSECUTIVE CHARACTERS===%s  \n"
+          "\t| Consecutive upper case chars: %d\n"
+          "\t| Consecutive lower case chars: %d\n"
+          "\t| Consecutive digits: %d          \n"
+          "\t| Consecutive signs: %d           \n",  
+          RED, RESET, passwd_info->cons_u_char, passwd_info->cons_l_char,
+                      passwd_info->cons_digit,  passwd_info->cons_sign);
+   printf("\n%s===REPEATED CHARACTERS===%s  \n"
+          "\t| Repeated upper case chars: %d\n"
+          "\t| Repeated lower case chars: %d\n"
+          "\t| Repeated digits: %d          \n"
+          "\t| Repeated signs: %d           \n",
+          RED, RESET, passwd_info->repeated_u_char, passwd_info->repeated_l_char,
+                      passwd_info->repeated_digit,  passwd_info->repeated_sign);
+   printf("\n%s===NUMBER OF EACH TYPE===%s   \n"
+          "\t| Number of upper case chars: %d\n"
+          "\t| Number of lower case chars: %d\n"
+          "\t| Number of digits: %d          \n"
+          "\t| Number of signs: %d           \n", 
+          RED, RESET, passwd_info->number_u_char, passwd_info->number_l_char,
+                      passwd_info->number_digit,  passwd_info->number_sign);
 }
 
 int search(const char * arr, size_t size, const char c)
