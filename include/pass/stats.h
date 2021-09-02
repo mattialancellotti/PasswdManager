@@ -8,7 +8,7 @@
 typedef struct {
   const char * passwd;
   
-  int consecutive_u_char, consecutive_l_char, consecutive_digit, consecutive_sign;
+  int cons_u_char, cons_l_char, cons_digit, cons_sign;
   int repeated_u_char, repeated_l_char, repeated_digit, repeated_sign;
   int number_digit, number_l_char, number_u_char, number_sign;
 } passwd_t;
