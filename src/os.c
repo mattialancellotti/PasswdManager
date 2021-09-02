@@ -24,7 +24,8 @@
  */
 static file_t *file_t_malloc(char* /*content*/, int /*fd*/);
 
-/* If something is being allocated elegantly with its own function, the
+/* 
+ * If something is being allocated elegantly with its own function, the
  * deallocation deserves a function too right?
  */
 static void file_t_free(file_t* /*fstruct*/);
