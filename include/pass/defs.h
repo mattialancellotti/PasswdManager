@@ -7,6 +7,7 @@
 #define PASS_DB   "db/"
 
 extern int behaviour;
+extern char *db_path;
 
 #define INIT 00001111
 #define VERB 00000100

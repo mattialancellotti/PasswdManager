@@ -15,7 +15,7 @@ RM = rm -rf
 CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
 
 ifdef EXPERIMENTAL
-  OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o pwman.o stats.o)
+  OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o pwman.o stats.o services.o)
   CFLAGS += -D_IS_EXPERIMENTAL
 endif
 

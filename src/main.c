@@ -11,10 +11,6 @@
 #  include <sodium.h>
 #endif
 
-#if defined(_HAVE_DEBUG)
-#  include <assert.h>
-#endif
-
 #include <pass/defs.h>
 #include <pass/args.h>
 #include <pass/gen.h>
@@ -25,6 +21,7 @@
 #  include <pass/crypto.h>
 #  include <pass/pwman.h>
 #  include <pass/stats.h>
+#  include <pass/services.h>
 
 /* The program's main files */
 static char *program_root;
@@ -159,14 +156,14 @@ int main(int argc, char **argv)
    switch (config_file.action) {
    case CREAT:
       /* Creating a new service called `config_file.service` */
-      err = pm_create_service(config_file.service);
+      err = create_service(config_file.service);
       exit_if((err == -1), EXIT_FAILURE);
 
       /* Updating the password */
       if (strict_check(success, GENE)) {
          char *passwd = create_passwd(config_file.length,
                                        config_file.char_not_admitted);
-         err = pm_update_service(config_file.service, passwd);
+         err = append_service(config_file.service, passwd);
          exit_if((err == -1), EXIT_FAILURE);
       } else {
       }
@@ -178,7 +175,7 @@ int main(int argc, char **argv)
       /* Checking if an argument has been supplied to purge */
       if (config_file.service != NULL) {
          /* Purge the specified service */
-         err = pm_delete_service(config_file.service);
+         err = delete_service(config_file.service);
          exit_if((err == -1), EXIT_FAILURE);
          printf("Service '%s' deleted.\n", config_file.service);
 
@@ -193,7 +190,7 @@ int main(int argc, char **argv)
 
       break;
    case SHOW:
-      err = pm_read_service(config_file.service);
+      err = expose_service(config_file.service);
       exit_if((err == -1), EXIT_FAILURE);
       break;
    case LIST:
@@ -233,6 +230,7 @@ void help()
 }
 
 #if defined(_IS_EXPERIMENTAL)
+char *db_path = NULL;
 static int init_prog_env(void)
 {
    program_root = absolute_path(PROG_ROOT ROOT_PATH);
@@ -243,6 +241,8 @@ static int init_prog_env(void)
    /* init */
    int err_path = pm_init_path();
    warn_user(err_path, "Couldn't create the program's db.", EXIT_FAILURE);
+
+   db_path = program_db;
 
    return 0;
 }
