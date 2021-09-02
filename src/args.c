@@ -30,6 +30,34 @@ int behaviour = 0;
  *
  *    Read `man getopt.3`;
  */
+/*
+ * TODO:
+ *  - ezpass create service_name  [options] [common]
+ *    + --gen|-g
+ *  - ezpass show   service_name  [options] [common]
+ *    + --fancy|-f
+ *    + --info|-i
+ *  - ezpass purge [service_name] [options] [common]
+ *  - ezpass list  [common]
+ *  - ezpass init  [options] [common]
+ *    + --length|-l
+ *    + --not-admitted|-n
+ *  - ezpass gen   [options] [common]
+ *    + --length|-l
+ *    + --not-admitted|-n
+ *    + --check|-c
+ *  - ezpass check [service_name] [options] [common]
+ *    + --fancy|-c
+ *    + --pacman|-p
+ *    + --bloc <arg>|-b <arg>
+ *  - commons
+ *    + --ask
+ *    + --force
+ *    + --verbose
+ *    + --colors
+ *    + --help
+ *    + --version
+ */
 static const struct option options[] = {
    /* Service handling options */
    {"create",       required_argument, 0, 'c'},
