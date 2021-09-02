@@ -2,10 +2,11 @@
 #define STATS_H
 
 #include <stddef.h>
+#include <pass/main.h>
 
 /* This is where the password is stored along with some information about it */
 typedef struct {
-  char * restrict passwd;
+  const char * passwd;
   
   int consecutive_u_char, consecutive_l_char, consecutive_digit, consecutive_sign;
   int repeated_u_char, repeated_l_char, repeated_digit, repeated_sign;
@@ -15,12 +16,14 @@ typedef struct {
 /* Types of characters */
 enum TYPE { SIGN = 0, U_CHAR = 2, L_CHAR = 4, DIGIT = 8,  NONE = 0 };
 
+void passwd_stats(const char* /*passwd*/);
+
 /*
- * This one accepts the password and its length to execute some controls on it.
+ * This one accepts the password.
  * This is useful if you want to have some information about your password
  * like how many numbers are in it and things like that.
  */
-void check_passwd(passwd_t ** /*passwd_creted*/, const size_t length);
+void check_passwd(passwd_t ** /*passwd_creted*/);
 
 /*
  * This function prints out to the user the information gathered through the
@@ -29,6 +32,6 @@ void check_passwd(passwd_t ** /*passwd_creted*/, const size_t length);
 void print(const passwd_t * /*passwd_info*/);
 
 /* Searches a char in the given string and returns its position */
-size_t search(const char *, const size_t, const char);
+int search(const char *, size_t, const char);
 
 #endif
