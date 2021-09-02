@@ -94,7 +94,6 @@ int main(int argc, char **argv)
 #if defined(_IS_EXPERIMENTAL)
    exit_if(init_prog_env(), EXIT_FAILURE);
 
-   printf("%d\n", success);
    /*
     * Long story short if the user is initializing a new hash with
     * a non-empty database he'll be asked whether to continue or not.
@@ -194,6 +193,9 @@ int main(int argc, char **argv)
 
       break;
    case SHOW:
+      err = pm_read_service(config_file.service);
+      exit_if((err == -1), EXIT_FAILURE);
+      break;
    case LIST:
    case EMPTY:
    default:
