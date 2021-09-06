@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <limits.h>
+#include <assert.h>
 
 #include <pass/defs.h>
 #include <pass/args.h>
@@ -15,10 +17,12 @@
 static int get_flags(char* /*str*/);
 
 /* options flags */
-static int vers = 0, use = 0, init = 0;
-static int stat = 0, ask = 0, verb = 0;
+static int vers = 0, use  = 0;
+static int ask  = 0, verb = 0;
+static int forc = 0, colr = 0;
 
 int behaviour = 0;
+int options_args = 0;
 
 /*
  * Declaring arguments.
@@ -40,16 +44,15 @@ int behaviour = 0;
  *  - ezpass purge [service_name] [options] [common]
  *  - ezpass list  [common]
  *  - ezpass init  [options] [common]
- *    + --length|-l
- *    + --not-admitted|-n
+ *    + --length|-l <arg>
+ *    + --not-admitted|-n <arg>
  *  - ezpass gen   [options] [common]
- *    + --length|-l
- *    + --not-admitted|-n
+ *    + --length|-l <arg>
+ *    + --not-admitted|-n <arg>
  *    + --check|-c
  *  - ezpass check [service_name] [options] [common]
  *    + --fancy|-c
  *    + --pacman|-p
- *    + --bloc <arg>|-b <arg>
  *  - commons
  *    + --ask
  *    + --force
@@ -58,103 +61,151 @@ int behaviour = 0;
  *    + --help
  *    + --version
  */
-static const struct option options[] = {
-   /* Service handling options */
-   {"create",       required_argument, 0, 'c'},
-   {"show",         required_argument, 0, 's'},
-   {"purge",        optional_argument, 0, 'p'},
-   {"list",         required_argument, 0, 'L'},
-   /* Passwd creation */
+static const struct option args_options[] = {
+   {"version", no_argument, &vers, VERS},
+   {"verbose", no_argument, &verb, VERB},
+   {"colors",  no_argument, &colr, COLR},
+   {"force", no_argument, &forc, FORC},
+   {"help",  no_argument, &use,  HELP},
+   {"ask",   no_argument, &ask,  ASK_},
    {"not-admitted", required_argument, 0, 'n'},
    {"length",       required_argument, 0, 'l'},
-   {"times",        required_argument, 0, 't'},
-   {"generate",     no_argument,       0, 'G'},
-   /* Program's behaviour */
-   {"stats",        no_argument,      &stat, STAT},
-   {"ask",          no_argument,      &ask,  ASK },
-   {"verbose",      no_argument,      &verb, VERB},
-   {"init",         no_argument,      &init, INIT},
-   {"help",         no_argument,      &use,  HELP},
-   {"version",      no_argument,      &vers, VERS},
-   {0,              0,                 0,       0}
+   {"generate",     no_argument, 0, 'g'},
+   {"fancy",        no_argument, 0, 'f'},
+   {"info",         no_argument, 0, 'i'},
+   {"pacman",       no_argument, 0, 'p'},
+   {"check",        no_argument, 0, 'c'},
+   {0,       0,               0,     0 }
 };
 
+static const struct primary_action actions[] = {
+   {"check",  "fpb:", optional_argument, CHCK},
+   {"create",    "g", required_argument, CRTE},
+   {"show",     "fi", required_argument, SHOW},
+   {"init",   "l:n:", no_argument,       INIT},
+   {"gen",   "l:b:c", no_argument,       GENE},
+   {"purge",    NULL, optional_argument, PURG},
+   {"list",     NULL,       no_argument, LIST}
+};
+
+#define PRIMARY_INDEX (1)
 int handle_args(const int argc, char **argv, service_t * const config_file)
 {
    size_t length = DEFAULT_PASSWD_SIZE, times = 1;
    int option_index = 0, c, success = 0;
 
-   /* Parsing arguments using getopt_long(..), check man getopt.3 */
+   int offset = 0, action = -1;
+   for (size_t i = 0; i < 7; i++) {
+      if (!strcmp(argv[PRIMARY_INDEX], "--help")) {
+         set_bit(success, HELP);
+         offset = 1;
+         break;
+      } else if (!strcmp(argv[PRIMARY_INDEX], "--version")) {
+         set_bit(success, VERS);
+         offset = 1;
+         break;
+      } else if (!strcmp(argv[PRIMARY_INDEX], actions[i].optname)) {
+         action = i;
+         config_file->action = actions[i].action;
+
+         /* Checking what kind of parameter it needs */
+         switch (actions[i].has_argument) {
+         case required_argument:
+            if (PRIMARY_INDEX == argc-1) {
+               fprintf(stderr, "The option '%s' requires an argument.\n", 
+                               argv[PRIMARY_INDEX]);
+               return -1;
+            }
+         case optional_argument:
+            if (argc-1 > PRIMARY_INDEX) {
+               printf("Program: %s, Primary action '%s' on '%s'\n", argv[0], argv[1], argv[2]);
+               config_file->service = argv[2];
+               offset = i+1;
+
+               break;
+            }
+         case no_argument:
+            printf("Program: %s, Primary action '%s'\n", argv[0], argv[1]);
+            offset = i+1;
+            break;
+         default:
+            break;
+         }
+
+         /* Exiting after success */
+         break;
+      }
+   }
+
+   if (!offset) {
+      fprintf(stderr, "Option '%s' unknown.\n", argv[1]);
+      return -1;
+   }
+
+   /* Parsing the rest of the arguments */
+   const char *optstr = (action == -1 ? "" : actions[action].optstring);
+   int args_success = handle_args_args(optstr, argc-offset, 
+                                        argv+offset, config_file);
+   warn_user((args_success == -1), "Try with --help next time.", -1);
+   success |= args_success;
+
+#if defined(_HAVE_DEBUG)
+   printf("Flags: %d\n", success);
+   printf("Behaviour: %d\n", behaviour);
+   printf("Options: %d\n", options_args);
+#endif
+
+   return success;
+}
+
+int handle_args_args(const char *optstring, int argc, char **argv,
+                        service_t * const config_file)
+{
+   int success = 0, longindex = 0;
+   int c = 0, flags;
+   long length = 0;
+
    while (1) {
-      c = getopt_long(argc, argv, "LGc:p::l:n:t:s:", options, &option_index);
+      c = getopt_long(argc, argv, optstring,
+                        args_options, &longindex);
       if (c == -1)
          break;
 
       switch (c) {
-      case 0:
-         /* Found but should not handle it */
-         break;
-      case '?':
-         /* Unsuccessfull matching */
-         return -1;
-      case 'c':
-         config_file->service = optarg;
-         config_file->action  = CREAT;
-         break;
-      case 's':
-         config_file->service = optarg;
-         config_file->action  = SHOW;
-         break;
-      case 'p':
-         if (optarg == NULL && optind < argc && argv[optind][0] != '-')
-            config_file->service = argv[optind++];
-         else
-            config_file->service = optarg;
-
-         config_file->action  = PURG;
-         break;
-      case 'L':
-         config_file->service = NULL;
-         config_file->action  = LIST;
-         break;
-      case 'G':
-         set_bit(success, GENE);
-         break;
-      case 'l':
-         /* Sets the length of the password */
-         if ((length = (size_t)atoi(optarg)) && length >= PASSWD_MIN_LENGTH 
-                                             && length <= PASSWD_MAX_LENGTH)
-            /* If not then leave the default option */
-            config_file->length = length;
-
-         break;
-      case 'n':
-         /* Uses `get_flags(..)` to get an unsigned flag of banned characters */
-	 config_file->char_not_admitted = get_flags(optarg);
-         if (config_file->char_not_admitted == 16) {
-            fprintf(stderr, "Fatal: can't accept all types as argument\n");
+         case '?':
+            /* Unknown option, missing argument */
             return -1;
-         }
+         case ':':
+            /* Found but has an optional argument */
+            break;
+         case 'g': set_bit(options_args, GNRT); break;
+         case 'p': set_bit(options_args, PCMN); break;
+         case 'c': break;
+         case 'f': set_bit(options_args, FNCY); break;
+         case 'i': set_bit(options_args, INFO); break;
+         case 'l':
+            length = strtol(optarg, NULL, 10);
+            if (length != LONG_MIN && length != LONG_MAX)
+               config_file->length = (size_t)length;
 
-         break;
-      case 't':
-         /* Sets the length of the password */
-         if ((times = atoi(optarg)) && times <= PASSWD_MAX_TIMES)
-            /* If not then leave the default option */
-            config_file->times = times;
-         break;
-      default:
-         /* Exits unsuccessfully */
-         return -1;
+            break;
+         case 'n':
+            flags = get_flags(optarg);
+            if (flags < 16) {
+               config_file->char_not_admitted = flags;
+               break;
+            }
+
+            fprintf(stderr, "Nope.\n");
+            break;
+         default:
+            break;
       }
    }
 
-   set_bit(success, ask);
-   set_bit(success, stat);
-   set_bit(success, verb);
-
-   set_bit(success, init);
-   set_bit(success, (use | vers));
+   /* Checking flags */
+   set_bit(behaviour, (verb|colr|forc|ask));
+   set_bit(success, (use|vers));
 
    return success;
 }

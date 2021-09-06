@@ -11,16 +11,24 @@
 #define PASS_DB   "db/"
 
 extern int behaviour;
-extern char *db_path;
+extern int options_args;
+extern char *program_db;
 
-#define INIT 00001111
-#define VERB 00000100
-#define STAT 00000010
-#define ASK  00000001
+/* Primary actions */
+#define HELP 0x02
+#define VERS 0x01
 
-#define HELP 01000000
-#define VERS 00100000
-#define GENE 00010000
+/* Behaviour */
+#define COLR 0x08
+#define VERB 0x04
+#define FORC 0x02
+#define ASK_ 0x01
+
+/* Options */
+#define PCMN 0x08
+#define INFO 0x04
+#define FNCY 0x02
+#define GNRT 0x01
 
 #define check_flag(flag) (flag)
 #define strict_check(bitarr, bitpos) ((bitarr & bitpos) == bitpos)

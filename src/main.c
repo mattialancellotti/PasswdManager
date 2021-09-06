@@ -26,7 +26,7 @@
 /* The program's main files */
 static char *program_root;
 static char *program_hash;
-static char *program_db;
+char *program_db = NULL;
 
 /* TODO: doc */
 static int init_prog_env(void);
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     */
    service_t config_file = { 
       .service = NULL,
-      .action = EMPTY,
+      .action = NOPE,
       .length = DEFAULT_PASSWD_SIZE,
       .times  = 1,
       .char_not_admitted = 0,
@@ -91,115 +91,18 @@ int main(int argc, char **argv)
 #if defined(_IS_EXPERIMENTAL)
    exit_if(init_prog_env(), EXIT_FAILURE);
 
-   /*
-    * Long story short if the user is initializing a new hash with
-    * a non-empty database he'll be asked whether to continue or not.
-    */
-   if (strict_check(success, INIT)) {
-      if (!is_empty(program_db)) {
-         printf("Initializing the new database of passwords.\n");
 
-         /* Checking if the initialization worked */
-         warn_user((pm_init_hash(program_hash) == -1),
-                     "Couldn't complete the initialization.\n", EXIT_FAILURE);
-         
-         /* Telling the user everything worked out */
-         printf("Initializationg completed.\n");
-         return EXIT_SUCCESS;
-      }
-
-      /*
-       * If the user is calling 'ezpass --init' on a non-empty ask him if he
-       * wants to delete all the saved passwords by re-initializing the
-       * database.
-       */
-      if (confirm_identity(program_hash)) return EXIT_FAILURE;
-      if (ask_confirmation(PASSWDS) == 'y') {
-         /* Re-initializing the hash and deleting the old passwords */
-         warn_user((pm_init_hash(program_hash) == -1), NO_INIT, EXIT_FAILURE);
-         exit_if((pm_purge_db(program_db) == -1), EXIT_FAILURE);
-
-         /* If everything went as planned just notify the user and exit */
-         printf("All your passwords are gone and your database is now clear.\n");
-      }
-
-      /* This option intentionally ignores every other option */
-      return EXIT_SUCCESS;
-   }
-
-   /* Checking if the user just wants to generate a new password */
-   if (strict_check(success, GENE) && config_file.service == NULL) {
-      char *passwd = create_passwd(config_file.length,
-                                       config_file.char_not_admitted);
-      printf("Password: %s\n", passwd);
-
-      /* Printing stats about the password */
-      if (check_bit(success, STAT))
-         (void) passwd_stats(passwd);
-
-      free(passwd);
-      return EXIT_SUCCESS;
-   }
-
-   /* If there is no hash to verify notify the user and eixt */
-   warn_user((!exists(program_hash)), NO_HASH, EXIT_FAILURE);
-
-   /*
-    * All the action handling except for `--init` should stay after the
-    * confirmation block.
-    */
-   if (confirm_identity(program_hash))
-      /* Tells the others that I failed :-( */
-      return EXIT_FAILURE;
-
-   int err = 0;
    switch (config_file.action) {
-   case CREAT:
-      /* Creating a new service called `config_file.service` */
-      err = create_service(config_file.service);
-      exit_if((err == -1), EXIT_FAILURE);
-
-      /* Updating the password */
-      if (strict_check(success, GENE)) {
-         char *passwd = create_passwd(config_file.length,
-                                       config_file.char_not_admitted);
-         err = append_service(config_file.service, passwd);
-         exit_if((err == -1), EXIT_FAILURE);
-      } else {
-      }
-
-      /* Informing the user about the success */
-      printf("Service '%s' created.\n", config_file.service);
-      break;
-   case PURG:
-      /* Checking if an argument has been supplied to purge */
-      if (config_file.service != NULL) {
-         /* Purge the specified service */
-         err = delete_service(config_file.service);
-         exit_if((err == -1), EXIT_FAILURE);
-         printf("Service '%s' deleted.\n", config_file.service);
-
-         break;
-      }
-
-      /* This action will only purge the passwords saved in the database */
-      if (ask_confirmation(PURGE_P) == 'y') {
-         exit_if((pm_purge_db(program_db) == -1), EXIT_FAILURE);
-      } else
-         printf("No password was harmed in the process. :)\n");
-
-      break;
+   case CRTE:
+   case CHCK:
    case SHOW:
-      err = expose_service(config_file.service);
-      exit_if((err == -1), EXIT_FAILURE);
-      break;
+   case INIT:
+   case GENE:
+   case PURG:
    case LIST:
-   case EMPTY:
    default:
-      (void) help();
       break;
    }
-
 #endif
 
    return EXIT_SUCCESS;
