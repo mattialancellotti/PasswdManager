@@ -12,7 +12,7 @@ DEPS := $(patsubst %.c, %.d, $(SRCS))
 
 CC = clang
 RM = rm -rf
-CFLAGS = -Wpedantic -Wextra -Werror -std=c11 -I$(INCLUDE)
+CFLAGS = -Wpedantic -Wextra -Werror -std=gnu17 -I$(INCLUDE)
 
 ifdef EXPERIMENTAL
   OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o pwman.o stats.o services.o)
