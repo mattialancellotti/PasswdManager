@@ -91,12 +91,32 @@ int main(int argc, char **argv)
 #if defined(_IS_EXPERIMENTAL)
    exit_if(init_prog_env(), EXIT_FAILURE);
 
-
+   int err = 0;
    switch (config_file.action) {
    case CRTE:
+      /* Creating the service */
+      err = create_service(config_file.service);
+      /* TODO: write to the file */
+      break;
    case CHCK:
+      break;
    case SHOW:
+      err = expose_service(config_file.service);
+      break;
    case INIT:
+      if (is_empty(program_db)) {
+         if (ask_confirmation(PASSWDS) == 'n') {
+            printf("No database initialized\n");
+            break;
+         }
+      }
+
+      err = pm_init_hash(program_hash);
+      if (err == -1)
+         fprintf(stderr, "Passwords must match\n");
+
+      err = pm_purge_db(program_db);
+      break;
    case GENE:
    case PURG:
    case LIST:
