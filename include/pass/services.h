@@ -19,7 +19,7 @@ int create_service(const char* /*service_name*/);
 int delete_service(const char* /*service_name*/);
 
 /*
- * This functions takes a buffer (as @content) that has to be writted down to
+ * This functions takes a buffer (as @content) that has to be written down to
  * the service (as @service_name). It will also check whether the specified service
  * exists or not. If the service doesn't exists it can be created and if the
  * user refuses to the function exits.
