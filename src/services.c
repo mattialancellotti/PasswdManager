@@ -142,11 +142,11 @@ int expose_service(const char *service_name)
 static char *service_absolute(const char *service_name)
 {
    prog_err((service_name == NULL), "Specify a valid service.", return NULL);
-   prog_err((db_path == NULL), "db_path is NULL.", return NULL);
+   prog_err((program_db == NULL), "db_path is NULL.", return NULL);
 
    /* Creating the service */
-   char *db_service = malloc(strlen(db_path) + strlen(service_name) + 1);
-   db_service = strcat(strcpy(db_service, db_path), service_name);
+   char *db_service = malloc(strlen(program_db) + strlen(service_name) + 1);
+   db_service = strcat(strcpy(db_service, program_db), service_name);
 
    return db_service;
 }
