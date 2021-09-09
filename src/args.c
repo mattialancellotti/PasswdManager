@@ -34,40 +34,13 @@ int options_args = 0;
  *
  *    Read `man getopt.3`;
  */
-/*
- * TODO:
- *  - ezpass create service_name  [options] [common]
- *    + --gen|-g
- *  - ezpass show   service_name  [options] [common]
- *    + --fancy|-f
- *    + --info|-i
- *  - ezpass purge [service_name] [options] [common]
- *  - ezpass list  [common]
- *  - ezpass init  [options] [common]
- *    + --length|-l <arg>
- *    + --not-admitted|-n <arg>
- *  - ezpass gen   [options] [common]
- *    + --length|-l <arg>
- *    + --not-admitted|-n <arg>
- *    + --check|-c
- *  - ezpass check [service_name] [options] [common]
- *    + --fancy|-c
- *    + --pacman|-p
- *  - commons
- *    + --ask
- *    + --force
- *    + --verbose
- *    + --colors
- *    + --help
- *    + --version
- */
 static const struct option args_options[] = {
    {"version", no_argument, &vers, VERS},
    {"verbose", no_argument, &verb, VERB},
    {"colors",  no_argument, &colr, COLR},
-   {"force", no_argument, &forc, FORC},
-   {"help",  no_argument, &use,  HELP},
-   {"ask",   no_argument, &ask,  ASK_},
+   {"force",   no_argument, &forc, FORC},
+   {"help",    no_argument, &use,  HELP},
+   {"ask",     no_argument, &ask,  ASK_},
    {"not-admitted", required_argument, 0, 'n'},
    {"length",       required_argument, 0, 'l'},
    {"generate",     no_argument, 0, 'g'},
@@ -83,7 +56,7 @@ static const struct primary_action actions[] = {
    {"create",    "g", required_argument, CRTE},
    {"show",     "fi", required_argument, SHOW},
    {"init",   "l:n:", no_argument,       INIT},
-   {"gen",   "l:b:c", no_argument,       GENE},
+   {"gen",   "l:n:c", no_argument,       GENE},
    {"purge",    NULL, optional_argument, PURG},
    {"list",     NULL,       no_argument, LIST}
 };
@@ -120,13 +93,13 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
             if (argc-1 > PRIMARY_INDEX) {
                printf("Program: %s, Primary action '%s' on '%s'\n", argv[0], argv[1], argv[2]);
                config_file->service = argv[2];
-               offset = i+1;
+               offset = 2;
 
                break;
             }
          case no_argument:
             printf("Program: %s, Primary action '%s'\n", argv[0], argv[1]);
-            offset = i+1;
+            offset = 1;
             break;
          default:
             break;
@@ -142,10 +115,18 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
       return -1;
    }
 
+#if defined(_HAVE_DEBUG)
+   printf("Pointer: %d - %s\n", argc-offset, argv[offset]);
+#endif
+
    /* Parsing the rest of the arguments */
-   const char *optstr = (action == -1 ? "" : actions[action].optstring);
-   int args_success = handle_args_args(optstr, argc-offset, 
+   int args_success = 0;
+   if (argc-offset != 1) {
+      const char *optstr = (action == -1 ? "" : actions[action].optstring);
+      args_success = handle_args_args(optstr, argc-offset, 
                                         argv+offset, config_file);
+   }
+
    warn_user((args_success == -1), "Try with --help next time.", -1);
    success |= args_success;
 
@@ -207,6 +188,9 @@ int handle_args_args(const char *optstring, int argc, char **argv,
    set_bit(behaviour, (verb|colr|forc|ask));
    set_bit(success, (use|vers));
 
+#if defined(_HAVE_DEBUG)
+   printf("Success: %d\n", success);
+#endif
    return success;
 }
 
