@@ -115,10 +115,25 @@ int main(int argc, char **argv)
       if (err == -1)
          fprintf(stderr, "Passwords must match\n");
 
+
       err = pm_purge_db(program_db);
       break;
    case GENE:
+   {
+      char *passwd = create_passwd(config_file.length,
+                                    config_file.char_not_admitted);
+      printf("Generated password: %s\n", passwd);
+      free(passwd);
+      break;
+   }
    case PURG:
+      if (config_file.service == NULL) {
+         err = pm_purge_db(program_db);
+         break;
+      }
+
+      err = delete_service(config_file.service);
+      break;
    case LIST:
    default:
       break;
