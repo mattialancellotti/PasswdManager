@@ -252,14 +252,15 @@ file_t *mopen(const char *f_name)
    return file_t_malloc(content, fd);
 }
 
-int cwrite(int fd, const char *content)
+int cwrite(int fd, const char *content, size_t len)
 {
    prog_err((content == NULL), "No actual content to write.", return -1);
 
-   size_t clen = strlen(content);
+   if (len == 0)
+      len = strlen(content);
 
    /* Writing stuff down */
-   ssize_t werr = write(fd,  content, clen);
+   ssize_t werr = write(fd,  content, len);
    system_err((werr == -1), "write", -1);
    
    return 0;

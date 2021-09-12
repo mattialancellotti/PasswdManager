@@ -105,14 +105,14 @@ file_t *mcreate(const char* /*f_name*/);
  */
 file_t *mopen(const char* /*f_name*/);
 
-
 /*
  * This function accepts a buffer (as @content) and writes that down to the
  * file identified by the file descriptor (as @fd).
+ * A length for @content might be specified in @len, otherwise -1 can be used.
  *
  * @return A status flag that is 0 on success and -1 if something bad happened.
  */
-int cwrite(const int /*fd*/, const char* /*content*/);
+int cwrite(const int /*fd*/, const char* /*content*/, size_t /*len*/);
 
 /*
  * This function accepts a file struct (as @file) and closes/frees all its
