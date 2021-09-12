@@ -40,7 +40,7 @@ int pm_init_hash(const char *hash_file)
 
    /* Writing the hash password to the file */
    file_t *file = mcreate(hash_file);
-   int werr = cwrite(file->fd, hash);
+   int werr = cwrite(file->fd, hash, 0);
    int cerr = mclose(file);
 
    printf("\nThe password manager is good to go.\n");
@@ -48,6 +48,9 @@ int pm_init_hash(const char *hash_file)
    free(passwd);
    free(verification_passwd);
    free(hash);
+
+   /* Generating the rest of the data */
+   init_crypt();
 
    return 0;
 }
