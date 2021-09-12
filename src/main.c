@@ -75,6 +75,15 @@ int main(int argc, char **argv)
       return EXIT_SUCCESS;
    }
 
+   if (config_file.action == GENE) {
+      char *passwd = create_passwd(config_file.length,
+                                    config_file.char_not_admitted);
+      printf("Generated password: %s\n", passwd);
+      free(passwd);
+
+      return EXIT_SUCCESS;
+   }
+
 #if defined(_HAVE_SODIUM)
    /*
     * Generating entropy and preparing some other things.
@@ -90,6 +99,9 @@ int main(int argc, char **argv)
 
 #if defined(_IS_EXPERIMENTAL)
    exit_if(init_prog_env(), EXIT_FAILURE);
+
+   if (confirm_identity(program_hash))
+      return EXIT_FAILURE;
 
    int err = 0;
    switch (config_file.action) {
@@ -118,14 +130,6 @@ int main(int argc, char **argv)
 
       err = pm_purge_db(program_db);
       break;
-   case GENE:
-   {
-      char *passwd = create_passwd(config_file.length,
-                                    config_file.char_not_admitted);
-      printf("Generated password: %s\n", passwd);
-      free(passwd);
-      break;
-   }
    case PURG:
       if (config_file.service == NULL) {
          err = pm_purge_db(program_db);
