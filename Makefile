@@ -60,6 +60,7 @@ stow:
 
 unstow:
 	stow --dir=/usr/local/stow --target=/usr/local --delete $(BINARY)
+	@echo Successfully unstowed $(BINARY).
 
 docker:
 	docker build -t ezpass-app .
