@@ -79,7 +79,7 @@ int append_service(const char *service_name, const char *content)
    file_t *service_file = mopen(service_path);
    if (service_file != NULL) {
       /* Writing the content to da service */
-      if (cwrite(service_file->fd, content) != -1) {
+      if (cwrite(service_file->fd, content, 0) != -1) {
          if (mclose(service_file) != -1)
             printf("New password configured for service %s.\n", service_name);
          else
