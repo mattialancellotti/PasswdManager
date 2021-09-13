@@ -52,13 +52,15 @@ static const struct option args_options[] = {
 };
 
 static const struct primary_action actions[] = {
+   {"gen",   "l:n:c", no_argument,       GENE},
+#if defined(_HAVE_SODIUM)
    {"check",  "fpb:", optional_argument, CHCK},
    {"create",    "g", required_argument, CRTE},
    {"show",     "fi", required_argument, SHOW},
-   {"init",   "l:n:", no_argument,       INIT},
-   {"gen",   "l:n:c", no_argument,       GENE},
    {"purge",    NULL, optional_argument, PURG},
+   {"init",   "l:n:", no_argument,       INIT},
    {"list",     NULL,       no_argument, LIST}
+#endif
 };
 
 #define PRIMARY_INDEX (1)
@@ -67,8 +69,9 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
    size_t length = DEFAULT_PASSWD_SIZE, times = 1;
    int option_index = 0, c, success = 0;
 
+   size_t pa_length = sizeof(actions)/sizeof(struct primary_action);
    int offset = 0, action = -1;
-   for (size_t i = 0; i < 7; i++) {
+   for (size_t i = 0; i < pa_length; i++) {
       if (!strcmp(argv[PRIMARY_INDEX], "--help")) {
          set_bit(success, HELP);
          offset = 1;
@@ -112,6 +115,7 @@ int handle_args(const int argc, char **argv, service_t * const config_file)
 
    if (!offset) {
       fprintf(stderr, "Option '%s' unknown.\n", argv[1]);
+      fprintf(stderr, "Try using --help next time.\n");
       return -1;
    }
 
