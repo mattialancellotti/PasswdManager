@@ -3,9 +3,9 @@ README
 
 ## PasswdManager - ezpass
 ### Introduction
-This objective of this project is to develop an ease to use password manager
+This objective of this project is to develop an easy to use password manager
 for personal use. Previously this project was a password generator, that's why
-this program can also generate passwords whit different characteristics.
+this program can also generate passwords whith different characteristics.
 
 ### Libraries
 + libsodium
