@@ -3,8 +3,11 @@
 #include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 #include <pass/term.h>
+#include <pass/os.h>
 
 char *ask_pass(void)
 {
@@ -35,4 +38,29 @@ char *ask_pass(void)
       perror("tcsetattr");
 
    return str;
+}
+
+#define case_ins(var, ch) ((var == ch) || (var == (ch+32)))
+char ask_confirmation(const char *msg)
+{
+   const char *default_msg = "Are you sure? (y/N) >>";
+   const char short_yes = 'y', short_no = 'n';
+   char *answer = NULL;
+   char ret = '\0';
+
+   do {
+      printf("%s", ( msg == NULL ? default_msg : msg));
+      answer = users_input();
+
+      /* If the users is trying the be smart, outsmart him */
+      if (case_ins(answer[0], 'Y') || case_ins(answer[0], 'N'))
+         ret = tolower(answer[0]);
+      else
+         fprintf(stderr, "'%s', what's that?", answer);
+
+      free(answer);
+   } while (ret == '\0');
+
+   /* Returing successfully */
+   return ret;
 }
