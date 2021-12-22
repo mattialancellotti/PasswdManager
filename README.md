@@ -18,4 +18,5 @@ tested. There are different methods to test it:
   `make unstow`;
 + Finally if you don't want to mess around with your system (or just like
   docker) run `make docker`.
+
 To clean everything up run `make clean`.
