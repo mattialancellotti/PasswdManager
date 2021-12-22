@@ -13,7 +13,7 @@ RUN chown -R ezpass /home/ezpass/.local/share
 RUN git clone -b master https://github.com/mattialancellotti/PasswdManager.git /home/ezpass/app/
 
 WORKDIR /home/ezpass/app
-RUN make EXPERIMENTAL=yes SODIUM=yes && make stow
+RUN make EXPERIMENTAL=yes SODIUM=yes DEBUG=yes && make stow
 
 USER ezpass
 ENTRYPOINT [ "/bin/bash" ]
