@@ -18,6 +18,8 @@
 
 #define DEFAULT_PASSWD_SIZE 8
 
+extern char *program_db;
+
 enum ACTION { NOPE, CRTE, CHCK, SHOW, INIT, GENE, PURG, LIST };
 typedef struct {
    char *service;

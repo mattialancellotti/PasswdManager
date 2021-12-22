@@ -84,7 +84,7 @@ int mkpath(const char *path, const char *absolute_path)
    /* This pointer is needed because strtok_r changes the given one */
    char *tmp_ptr = rwpath;
 
-   /* Thise while loops through all the pecies of the given path */
+   /* This while loops through all the pecies of the given path */
    while ((token = strtok_r(tmp_ptr, "/", &tmp_ptr))) {
       complete_path = strcat(complete_path, token);
       complete_path = strcat(complete_path, "/");

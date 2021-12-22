@@ -49,9 +49,6 @@ int pm_init_hash(const char *hash_file)
    free(verification_passwd);
    free(hash);
 
-   /* Generating the rest of the data */
-   init_crypt();
-
    return 0;
 }
 
