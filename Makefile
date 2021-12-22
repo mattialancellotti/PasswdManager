@@ -48,7 +48,7 @@ $(SRCDIR)/%.d: $(SRCDIR)/%.c
 $(OBJSDIR)/%.o: $(SRCDIR)/%.c $(SRCDIR)/%.d $(INCLUDE)/pass/%.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-.PHONY: clean stow
+.PHONY: clean stow unstow docker
 clean:
 	$(RM) $(BINDIR) $(OBJSDIR)
 
