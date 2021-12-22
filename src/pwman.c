@@ -94,14 +94,14 @@ int pm_init_path(void)
    if (mkpath(PROG_ROOT ROOT_PATH PASS_DB, users_home)) {
       printf("pm_init_path\n");
    //if (mkpath(ROOT_PATH, program_root) || mkpath(PASS_DB,   program_path)) {
-      free(program_root);
+      //free(program_root);
       free(program_path);
 
       return -1;
    }
 
    /* Freeing stuff */
-   free(program_root);
+   //free(program_root);
    free(program_path);
 
    return 0;
