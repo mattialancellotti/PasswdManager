@@ -100,7 +100,8 @@ int main(int argc, char **argv)
 #if defined(_IS_EXPERIMENTAL)
    exit_if(init_prog_env(), EXIT_FAILURE);
 
-   if (confirm_identity(program_hash))
+   /* Checks an hash has already been saved before asking for authentication */
+   if (exists(program_hash) && confirm_identity(program_hash))
       return EXIT_FAILURE;
 
    int err = 0;
@@ -126,7 +127,6 @@ int main(int argc, char **argv)
       err = pm_init_hash(program_hash);
       if (err == -1)
          fprintf(stderr, "Passwords must match\n");
-
 
       err = pm_purge_db(program_db);
       break;
@@ -172,7 +172,6 @@ void help()
 }
 
 #if defined(_IS_EXPERIMENTAL)
-char *db_path = NULL;
 static int init_prog_env(void)
 {
    program_root = absolute_path(PROG_ROOT ROOT_PATH);
@@ -183,8 +182,6 @@ static int init_prog_env(void)
    /* init */
    int err_path = pm_init_path();
    warn_user(err_path, "Couldn't create the program's db.", EXIT_FAILURE);
-
-   db_path = program_db;
 
    return 0;
 }
@@ -222,30 +219,5 @@ static void free_files(void)
    ifdef_free(program_hash);
    ifdef_free(program_db);
    ifdef_free(program_root);
-}
-
-#define case_ins(var, ch) ((var == ch) || (var == (ch+32)))
-char ask_confirmation(const char *msg)
-{
-   const char *default_msg = "Are you sure? (y/N) >>";
-   const char short_yes = 'y', short_no = 'n';
-   char *answer = NULL;
-   char ret = '\0';
-
-   do {
-      printf("%s", ( msg == NULL ? default_msg : msg));
-      answer = users_input();
-
-      /* If the users is trying the be smart, outsmart him */
-      if (case_ins(answer[0], 'Y') || case_ins(answer[0], 'N'))
-         ret = tolower(answer[0]);
-      else
-         fprintf(stderr, "'%s', what's that?", answer);
-
-      free(answer);
-   } while (ret == '\0');
-
-   /* Returing successfully */
-   return ret;
 }
 #endif

@@ -62,7 +62,7 @@ char *pm_hash(const char *hash_file)
     * or the file doesn't exist at all it returns NULL.
     */
    if ((hash = mopen(hash_file)) == NULL)
-      goto hash_exit;
+      return actual_hash;
 
    if (hash->file_content == NULL) {
       fprintf(stdout, "No password found. Use ezPass --init to initialize one.\n");
@@ -81,29 +81,21 @@ hash_exit:
 
 int pm_init_path(void)
 {
-   /* Important program paths */
    char *users_home = users_path();
-   char *program_path = absolute_path(PROG_ROOT ROOT_PATH);
-   //char *program_path = absolute_path(PROG_ROOT ROOT_PATH);
 
    /*
     * Checks if both directories exist and if they do moves on the program,
     * otherwise they are created. If some error happens during the creation
     * this functions returns -1. (Look at `mkpath` in os.c)
     */
+   printf("Checking paths\n");
    if (mkpath(PROG_ROOT ROOT_PATH PASS_DB, users_home)) {
-      printf("pm_init_path\n");
-   //if (mkpath(ROOT_PATH, program_root) || mkpath(PASS_DB,   program_path)) {
-      //free(program_root);
-      free(program_path);
+      free(users_home);
 
       return -1;
    }
 
-   /* Freeing stuff */
-   //free(program_root);
-   free(program_path);
-
+   free(users_home);
    return 0;
 }
 

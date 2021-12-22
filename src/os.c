@@ -78,7 +78,7 @@ int mkpath(const char *path, const char *absolute_path)
    char *token = NULL;
 
    /* Keeping track of path */
-   char *complete_path = malloc(strlen(absolute_path) + (strlen(path)*2) + 1);
+   char *complete_path = malloc(strlen(absolute_path) + strlen(path) + 1);
    complete_path = strcpy(complete_path, absolute_path);
 
    /* This pointer is needed because strtok_r changes the given one */
@@ -86,16 +86,22 @@ int mkpath(const char *path, const char *absolute_path)
 
    /* This while loops through all the pecies of the given path */
    while ((token = strtok_r(tmp_ptr, "/", &tmp_ptr))) {
+      printf("Creating %s - %s\n", token, complete_path);
+
       complete_path = strcat(complete_path, token);
       complete_path = strcat(complete_path, "/");
 
       /* Checks if the directory exists */
-      if (open(complete_path, 0) == -1)
+      if (open(complete_path, 0) == -1) {
          if (mkdir(complete_path, S_IRWXU) == -1) {
             perror(complete_path);
 
             return -1;
          }
+
+         printf("%s created\n", complete_path);
+      } else
+         printf("%s\n", complete_path);
    }
 
    free(complete_path);
@@ -182,7 +188,7 @@ int is_empty(const char *path)
    /* Closing the file stream and checking for final errors */
    system_err((closedir(path_stream) == -1), "closedir", -1);
 
-   /* Bot `.` and `..` are counted and to avoid this 2 is being subracted. */
+   /* Both `.` and `..` are counted and to avoid this 2 is being subracted. */
    return count-2;
 }
 
@@ -191,7 +197,7 @@ int exists(const char *f_name)
    prog_err((f_name == NULL), "Specify a valid file name.", return -1);
 
    /* 
-    * This call is going to attempt the creation of the `f_name` file. By doing
+    * This call is going to try to open `f_name`. By doing
     * this the function will try to create the file and if it's already there
     * it's going to return an errno set to EEXIST.
     */

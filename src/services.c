@@ -5,7 +5,7 @@
 #include <pass/defs.h>
 #include <pass/services.h>
 #include <pass/os.h>
-#include <pass/main.h>
+#include <pass/term.h>
 
 /*
  * This function takes a @service_name and concatenates it with the full

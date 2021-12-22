@@ -38,7 +38,4 @@ typedef struct {
  */
 void help(void);
 
-/* TODO: Put this into its own file with some other user input functions */
-char ask_confirmation(const char* /*msg*/);
-
 #endif
