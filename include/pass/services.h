@@ -33,7 +33,7 @@ int append_service(const char* /*service_name*/, const char* /*content*/);
  * This function is used to open and read a service (as @service_name) is content.
  * It uses the mopen function from src/os.c to open and read the file.
  *
- * TODO: return a duplicate of the password.
+ * TODO: try to copy it to the clipboard
  * @return A status flag that is 0 on success and -1 otherwise.
  */
 int expose_service(const char* /*service_name*/);
