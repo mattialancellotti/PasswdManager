@@ -7,8 +7,9 @@
 
 #define PROG_ROOT ".local/share/"
 #define ROOT_PATH "ezpass/"
-#define PASS_HASH "passwd"
 #define PASS_DB   "db/"
+#define PASS_HASH "passwd"
+#define PASS_SALT "salt"
 
 extern int behaviour;
 extern int options_args;
