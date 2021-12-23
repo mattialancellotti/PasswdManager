@@ -124,11 +124,13 @@ int main(int argc, char **argv)
          }
       }
 
+      /* TODO What if the program cannot delete the db? */
+      err = pm_purge_db(program_db);
+
       err = pm_init_hash(program_hash);
       if (err == -1)
          fprintf(stderr, "Passwords must match\n");
 
-      err = pm_purge_db(program_db);
       break;
    case PURG:
       if (config_file.service == NULL) {
