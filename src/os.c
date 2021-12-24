@@ -18,6 +18,14 @@
 #include <pass/os.h>
 
 /*
+ * TODO:
+ *    - Less cumbersome I/O functions (save_file..) with automatic error
+ *      handling.
+ *    - Better error handling when the program fails;
+ *    - Maybe locking files(?).
+ */
+
+/*
  * All the functions regarding file input/output work with a strut that
  * rapresents a open file. For this reason an allocation function is used to
  * clear the code up.

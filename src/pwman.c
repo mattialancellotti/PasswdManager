@@ -10,6 +10,11 @@
 #include <pass/term.h>
 #include <pass/crypto.h>
 
+/*
+ * TODO:
+ *    - Avoid passing known directories like db, hash files via argument
+ *      when it's a global variable.
+ */
 int pm_init_hash(const char *hash_file)
 {
    char *passwd = NULL, *verification_passwd = NULL;
