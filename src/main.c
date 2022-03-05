@@ -37,6 +37,18 @@ static void free_files(void);
 
 int main(int argc, char **argv)
 {
+   init_prog_env();
+   char *password = malloc(5);
+   unsigned long long length = 0;
+
+   password = strcpy(password, "1234");
+   unsigned char *encrypted_passwd = encrypt_password(password, password, &length);
+   int c = append_service("test", (const char*)encrypted_passwd);
+
+   //unsigned char *decrypted_passwd = decrypt_password(encrypted_passwd, password);
+
+   //printf("Cleartext: %s\n", decrypted_passwd);
+   return 0;
    /* If there are no arguments prints the help message and be done with it. */
    if (argc == 1) {
       (void) help();

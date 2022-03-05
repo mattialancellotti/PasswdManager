@@ -1,15 +1,18 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define PASS_MAX_LEN 20
+
 #define RED "\x1b[31m"
 #define YELLOW "\x1b[33m"
 #define RESET "\x1b[0m"
 
-#define PROG_ROOT ".local/share/"
-#define ROOT_PATH "ezpass/"
-#define PASS_DB   "db/"
-#define PASS_HASH "passwd"
-#define PASS_SALT "salt"
+#define PROG_ROOT  ".local/share/"
+#define ROOT_PATH  "ezpass/"
+#define PASS_DB    "db/"
+#define PASS_HASH  "passwd"
+#define PASS_SALT  "salt"
+#define PASS_NONCE "nonce"
 
 extern int behaviour;
 extern int options_args;
