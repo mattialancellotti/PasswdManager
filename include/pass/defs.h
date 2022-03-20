@@ -68,15 +68,5 @@ extern char *program_db;
 #define exit_if(condition, code); \
    if (condition) \
       return code;
-      
-#if defined(__libsodium__)
-#  define secure_malloc(var, type); \
-      type *var = sodium_malloc(sizeof(type)); \
-      sodium_memzero(var, sizeof(var));
-#else
-#  define secure_malloc(var, type); \
-      type var = malloc(sizeof(type)); \
-      memset(var, 0, sizeof(var));
-#endif
 
 #endif
