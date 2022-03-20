@@ -53,14 +53,12 @@ static const struct option args_options[] = {
 
 static const struct primary_action actions[] = {
    {"gen",   "l:n:c", no_argument,       GENE},
-#if defined(_HAVE_SODIUM)
    {"check",  "fpb:", optional_argument, CHCK},
    {"create",    "g", required_argument, CRTE},
    {"show",     "fi", required_argument, SHOW},
    {"purge",    NULL, optional_argument, PURG},
    {"init",   "l:n:", no_argument,       INIT},
    {"list",     NULL,       no_argument, LIST}
-#endif
 };
 
 #define PRIMARY_INDEX (1)

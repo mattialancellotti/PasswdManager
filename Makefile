@@ -13,21 +13,13 @@ DEPS := $(patsubst %.c, %.d, $(SRCS))
 CC = clang
 RM = rm -rf
 CFLAGS = -Wpedantic -Wextra -Werror -std=gnu17 -I$(INCLUDE)
+LDLIBS = -lsodium
 
 # The EXPERIMENTAL flag is compiling into the binary experimental things that
 # still needs to be debugged.
 ifdef EXPERIMENTAL
   OBJS += $(addprefix $(OBJSDIR)/, term.o os.o crypto.o pwman.o stats.o services.o)
   CFLAGS += -D_IS_EXPERIMENTAL
-endif
-
-# This flag will probably gonna be deleted in the future. If enabled it's
-# compiling the binary with libsodium and all the files needed to
-# encrypt/decrypt passwords. Without this the password manager is just a
-# password generator.
-ifdef SODIUM
-  CFLAGS += -D_HAVE_SODIUM
-  LDLIBS += -lsodium
 endif
 
 # This flag will enable the C compiler to do multiple things.
